@@ -223,7 +223,7 @@ def dfs(current_location, visited, moves, target_location, maze):
     return None
 
 
-def solve_maze(lookup_key, start_coordinates, end_coordinates):
+def find_path_through_maze(lookup_key, start_coordinates, end_coordinates):
     maze = MAZES[lookup_key]
     moves = dfs(start_coordinates, set(), [], end_coordinates, maze)
     assert moves is not None, "Could not find solution for maze!"

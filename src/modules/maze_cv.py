@@ -204,8 +204,8 @@ def get_grid(im):
     ret, thresh = cv2.threshold(im_mono, 40, 255, 0)
     # show(thresh)
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    show_contours = np.empty(im.shape)
-    show_contours[:, :] = [0, 0, 0]
+    # show_contours = np.empty(im.shape)
+    # show_contours[:, :] = [0, 0, 0]
     col_groups = []
     row_groups = []
     for contour in contours:
@@ -214,15 +214,15 @@ def get_grid(im):
             x, y, w, h = cv2.boundingRect(contour)
             add_to_matching_group(col_groups, contour, x, x + w, "col")
             add_to_matching_group(row_groups, contour, y, y + h, "row")
-            cv2.drawContours(show_contours, [contour], -1, (0, 255, 0), 1)
+            # cv2.drawContours(show_contours, [contour], -1, (0, 255, 0), 1)
     row_centers = sorted(sum(row) / len(row) for row in row_groups)
     col_centers = sorted(sum(col) / len(col) for col in col_groups)
     # show(show_contours)
     assert len(row_centers) == 6, "Expected 6 row centers, got %s: %s" % (len(row_centers), row_centers)
     assert len(col_centers) == 6, "Expected 6 col centers, got %s: %s" % (len(col_centers), row_centers)
-    for row_center in row_centers:
-        for col_center in col_centers:
-            show_contours[row_center, col_center] = [0, 0, 255]
+    # for row_center in row_centers:
+    #     for col_center in col_centers:
+    #         show_contours[row_center, col_center] = [0, 0, 255]
 
     return col_centers, row_centers
 
@@ -255,9 +255,9 @@ def get_maze_lookup_key(im, col_centers, row_centers):
     # We want to sort the points first by x value, then by y, then flatten the list to get the maze lookup key
     lookup_key = tuple(p for coord in sorted(coords) for p in coord)
 
-    show_contours = np.empty(im.shape)
-    show_contours[:, :] = [0, 0, 0]
-    cv2.drawContours(show_contours, contours, -1, (0, 255, 0), 1)
+    # show_contours = np.empty(im.shape)
+    # show_contours[:, :] = [0, 0, 0]
+    # cv2.drawContours(show_contours, contours, -1, (0, 255, 0), 1)
     # show(show_contours)
 
     return lookup_key
