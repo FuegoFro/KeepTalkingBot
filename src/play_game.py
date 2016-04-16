@@ -7,7 +7,7 @@ from constants import VOCAB_FILE_PATH, SVM_PATH
 from in_game_actions import start_game, flip_side, quit_game
 from modules import Type
 from modules.maze import solve_maze
-from mouse_helpers import click_percent, MouseButton, open_bomb, close_once, open_close_delay, mouse_percent, MouseEvent
+from mouse_helpers import MouseButton, open_bomb, close_once, open_close_delay, click_pixels
 from screenshot_helpers import determine_visible_modules, get_current_module_screenshot
 
 
@@ -52,7 +52,7 @@ def solve_modules_on_this_side(classifier):
         print "module type", module_type, "(x, y)=", x, y
         if not is_solvable(module_type):
             continue
-        click_percent(MouseButton.left, x, y)
+        click_pixels(MouseButton.left, x, y)
         open_close_delay()
         screenshot, top_left = get_current_module_screenshot()
         solve_module(module_type, screenshot, top_left)
@@ -64,11 +64,11 @@ def solve_modules_on_this_side(classifier):
 def play_game():
     time.sleep(2)
     classifier = inflate_classifier()
-    # start_game()
+    start_game()
     solve_modules_on_this_side(classifier)
     flip_side()
     solve_modules_on_this_side(classifier)
-    # quit_game()
+    quit_game()
 
 if __name__ == '__main__':
     play_game()

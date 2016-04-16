@@ -4,7 +4,7 @@ from pprint import pprint
 import cv2
 import numpy as np
 
-from modules.maze_cv import show
+from cv_helpers import show
 
 SCREENSHOTS = "/Users/danny/src/keep_talking_bot_python/maze_parse_screenshots"
 

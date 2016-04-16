@@ -50,7 +50,6 @@ def determine_visible_modules(classifier):
 
     modules = []
     for x1, x2, y1, y2 in FULL_POSITIONS:
-        percent_midpoint = ((x1 + x2) / 2, (y1 + y2) / 2)
         height = mat.shape[0]
         width = mat.shape[1]
         x1 = x1 * width / 100
@@ -59,7 +58,7 @@ def determine_visible_modules(classifier):
         y2 = y2 * height / 100
         sub_screenshot = mat[y1:y2, x1:x2]
         module_type = classify_module(classifier, sub_screenshot)
-        modules.append((module_type, percent_midpoint))
+        modules.append((module_type, ((x1 + x2) / 2, (y1 + y2) / 2)))
 
     return modules
 
@@ -74,7 +73,6 @@ def get_current_module_screenshot():
     pre_drag_delay()
 
     mat = get_screenshot_matrix()
-    print mat.shape
     height = mat.shape[0]
     width = mat.shape[1]
     x1, x2, y1, y2 = MODULE_RECT

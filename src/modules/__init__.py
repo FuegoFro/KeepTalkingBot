@@ -2,8 +2,8 @@ from enum import Enum
 
 # TODO - replace "other" with the real modules
 Type = Enum('Type', 'blank '
-                    'button '
                     'clock '
+                    'button '
                     'complicated_wires '
                     'maze '
                     'memory '

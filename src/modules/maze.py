@@ -4,7 +4,8 @@ import Quartz
 import cv2
 
 from constants import LABELLED_PHOTOS_DIR
-from modules.maze_cv import get_maze_params, get_button_locations, show
+from modules.maze_cv import get_maze_params, get_button_locations
+from cv_helpers import show
 from modules.maze_solution import find_path_through_maze, UP, RIGHT, DOWN, LEFT
 from mouse_helpers import MouseButton, click_pixels, pre_drag_delay, open_close_delay
 
@@ -26,10 +27,8 @@ def solve_maze(image, offset):
     }
     for move in moves:
         x_raw, y_raw = move_to_button[move]
-        width = Quartz.CGDisplayPixelsWide(Quartz.CGMainDisplayID())
-        height = Quartz.CGDisplayPixelsHigh(Quartz.CGMainDisplayID())
         click_pixels(MouseButton.left, x_raw, y_raw)
-        open_close_delay()
+        pre_drag_delay()
 
 
 def solve_stored_mazes():
