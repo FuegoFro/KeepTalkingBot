@@ -8,7 +8,7 @@ import yaml
 
 from constants import MODULE_SPECIFIC_DIR
 from cv_helpers import show, get_classifier_directories, ls
-from modules.password import PASSWORD_LETTER_DATA_DIR
+from modules.password import PASSWORD_LETTER_CLASSIFIER_DIR
 
 NUM_MODULE_POSITIONS = 6
 
@@ -206,7 +206,7 @@ def load_mat(mat_path):
 
 def train_module_classifier():
     vocab_path, unlabelled_dir, labelled_dir, features_dir, svm_data_dir = \
-        get_classifier_directories(PASSWORD_LETTER_DATA_DIR)
+        get_classifier_directories(PASSWORD_LETTER_CLASSIFIER_DIR)
     def module_vocab_paths():
         current_module_offset = 0
         for i in range(MAX_INDEX + 1):
@@ -233,7 +233,7 @@ def train_module_classifier():
 def group_password_letters():
     num_clusters = 26
     vocab_path, unlabelled_dir, labelled_dir, features_dir, svm_data_dir =\
-        get_classifier_directories(PASSWORD_LETTER_DATA_DIR)
+        get_classifier_directories(PASSWORD_LETTER_CLASSIFIER_DIR)
 
     def password_vocab_paths():
         for i, file_name in enumerate(os.listdir(unlabelled_dir)):

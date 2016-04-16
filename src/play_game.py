@@ -2,9 +2,8 @@ import time
 
 from constants import MODULE_CLASSIFIER_DIR
 from cv_helpers import inflate_classifier
-from in_game_actions import start_game, flip_side, quit_game
-from modules import Type
-from modules.maze import solve_maze
+from in_game_actions import flip_side, start_game, quit_game
+from modules import Type, create_solvers
 from mouse_helpers import MouseButton, open_bomb, close_once, open_close_delay, click_pixels
 from screenshot_helpers import determine_visible_modules, get_current_module_screenshot
 
@@ -13,12 +12,12 @@ def is_solvable(module_type):
     return module_type not in (Type.blank, Type.clock)
 
 
-def solve_module(module_type, screenshot, top_left):
-    if module_type == Type.maze:
-        solve_maze(screenshot, top_left)
+def solve_module(module_solvers, module_type, screenshot, top_left):
+    if module_type in module_solvers:
+        module_solvers[module_type].solve(screenshot, top_left)
 
 
-def solve_modules_on_this_side(classifier):
+def solve_modules_on_this_side(classifier, module_solvers):
     open_bomb()
 
     for module_type, (x, y) in determine_visible_modules(classifier):
@@ -28,7 +27,7 @@ def solve_modules_on_this_side(classifier):
         click_pixels(MouseButton.left, x, y)
         open_close_delay()
         screenshot, top_left = get_current_module_screenshot()
-        solve_module(module_type, screenshot, top_left)
+        solve_module(module_solvers, module_type, screenshot, top_left)
         close_once()
 
     close_once()
@@ -37,10 +36,11 @@ def solve_modules_on_this_side(classifier):
 def play_game():
     time.sleep(2)
     classifier = inflate_classifier(MODULE_CLASSIFIER_DIR)
+    solvers = create_solvers()
     start_game()
-    solve_modules_on_this_side(classifier)
+    solve_modules_on_this_side(classifier, solvers)
     flip_side()
-    solve_modules_on_this_side(classifier)
+    solve_modules_on_this_side(classifier, solvers)
     quit_game()
 
 if __name__ == '__main__':

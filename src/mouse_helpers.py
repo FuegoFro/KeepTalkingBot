@@ -26,6 +26,10 @@ def post_drag_delay():
     time.sleep(.5)
 
 
+def post_click_delay():
+    time.sleep(.1)
+
+
 def open_bomb():
     click_percent(MouseButton.left, 50, 70)
     open_close_delay()

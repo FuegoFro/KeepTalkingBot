@@ -143,3 +143,13 @@ def ls(path):
         if name == ".DS_Store":
             continue
         yield os.path.join(path, name)
+
+
+def apply_offset_to_locations(locations, offset):
+    x_offset, y_offset = offset
+    return [(location[0] + x_offset, location[1] + y_offset) for location in locations]
+
+
+def apply_offset_to_single_location(location, offset):
+    x_offset, y_offset = offset
+    return location[0] + x_offset, location[1] + y_offset

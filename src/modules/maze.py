@@ -1,34 +1,13 @@
 import os
 
-import Quartz
 import cv2
 
 from constants import MODULE_CLASSIFIER_DIR
+from cv_helpers import get_classifier_directories, apply_offset_to_locations
+from modules import Type, ModuleSolver
 from modules.maze_cv import get_maze_params, get_button_locations
-from cv_helpers import show, get_classifier_directories
 from modules.maze_solution import find_path_through_maze, UP, RIGHT, DOWN, LEFT
-from mouse_helpers import MouseButton, click_pixels, pre_drag_delay, open_close_delay
-
-
-def apply_offset_to_button_locations(button_locations, offset):
-    x_offset, y_offset = offset
-    return ((location[0] + x_offset, location[1] + y_offset) for location in button_locations)
-
-
-def solve_maze(image, offset):
-    lookup_key, start_coordinates, end_coordinates = get_maze_params(image)
-    top, right, bottom, left = apply_offset_to_button_locations(get_button_locations(image), offset)
-    moves = find_path_through_maze(lookup_key, start_coordinates, end_coordinates)
-    move_to_button = {
-        UP: top,
-        RIGHT: right,
-        DOWN: bottom,
-        LEFT: left,
-    }
-    for move in moves:
-        x_raw, y_raw = move_to_button[move]
-        click_pixels(MouseButton.left, x_raw, y_raw)
-        pre_drag_delay()
+from mouse_helpers import MouseButton, click_pixels, post_click_delay
 
 
 def solve_stored_mazes():
@@ -55,6 +34,26 @@ def solve_stored_mazes():
         # show(maze_image)
         # if i > 10:
         #     break
+
+
+class MazeSolver(ModuleSolver):
+    def get_type(self):
+        return Type.maze
+
+    def solve(self, image, offset):
+        lookup_key, start_coordinates, end_coordinates = get_maze_params(image)
+        top, right, bottom, left = apply_offset_to_locations(get_button_locations(image), offset)
+        moves = find_path_through_maze(lookup_key, start_coordinates, end_coordinates)
+        move_to_button = {
+            UP: top,
+            RIGHT: right,
+            DOWN: bottom,
+            LEFT: left,
+        }
+        for move in moves:
+            x_raw, y_raw = move_to_button[move]
+            click_pixels(MouseButton.left, x_raw, y_raw)
+            post_click_delay()
 
 
 if __name__ == '__main__':

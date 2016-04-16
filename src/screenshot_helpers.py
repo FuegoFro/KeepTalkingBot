@@ -1,9 +1,8 @@
 import Quartz
-import cv2
 import numpy as np
 
 from modules import Type
-from mouse_helpers import mouse_percent, MouseEvent, pre_drag_delay, open_bomb
+from mouse_helpers import mouse_percent, MouseEvent, pre_drag_delay
 
 FULL_POSITIONS = (
     (27, 43, 26, 51),  # top-left
