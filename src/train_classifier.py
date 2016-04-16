@@ -1,35 +1,29 @@
 import os
+import shutil
 from collections import defaultdict
 
 import cv2
 import numpy as np
 import yaml
 
-from constants import LABELLED_PHOTOS_DIR, FEATURES_DIR, SVM_DATA_DIR, SCREENSHOTS_DIRECTORY, VOCAB_FILE_PATH
+from constants import MODULE_SPECIFIC_DIR
+from cv_helpers import show, get_classifier_directories, ls
+from modules.password import PASSWORD_LETTER_DATA_DIR
 
 NUM_MODULE_POSITIONS = 6
 
 MAX_INDEX = 374
-MAX_TRAINING_INDEX = MAX_INDEX * 9 / 10  # Keep 10% of the data for testing
+MAX_TRAINING_INDEX = MAX_INDEX * 8 / 10  # Keep 10% of the data for testing
 # MAX_TRAINING_INDEX_STRING = "{0:04d}".format(MAX_TRAINING_INDEX)
 
 MODULE_NAME_FOR_OFFSET = ["top-left", "top-middle", "top-right", "bottom-left", "bottom-middle", "bottom-right"]
 
 
-def generate_vocab():
+def generate_vocab(representative_files, vocab_path):
     features_unclustered = None
     detector = cv2.SIFT()
 
-    current_module_offset = 0
-    for i in range(MAX_INDEX + 1):
-        if i % 3 == 0:
-            continue
-        print "Loading", i
-
-        file_name = "{:04d}-full-{}.png".format(i, MODULE_NAME_FOR_OFFSET[current_module_offset])
-        file_path = os.path.join(SCREENSHOTS_DIRECTORY, file_name)
-        current_module_offset = (current_module_offset + 1) % NUM_MODULE_POSITIONS
-
+    for file_path in representative_files:
         screenshot = cv2.imread(file_path)
         keypoints, descriptor = detector.detectAndCompute(screenshot, None)
 
@@ -40,12 +34,12 @@ def generate_vocab():
 
     bow_trainer = cv2.BOWKMeansTrainer(200)
     vocab = bow_trainer.cluster(features_unclustered)
-    with open(VOCAB_FILE_PATH, "w") as f:
+    with open(vocab_path, "w") as f:
         np.save(f, vocab)
 
 
-def extract_features():
-    with open(VOCAB_FILE_PATH, "rb") as f:
+def extract_features(vocab_path, image_and_features_paths):
+    with open(vocab_path, "rb") as f:
         vocab = np.load(f)
 
     # FLANN parameters
@@ -63,42 +57,57 @@ def extract_features():
     bow_de = cv2.BOWImgDescriptorExtractor(extractor, matcher)
     bow_de.setVocabulary(vocab)
 
-    for screenshot_set in range(MAX_INDEX + 1):
-        if screenshot_set % 3 == 0:
-            continue
-        print "Extracting features for screenshot set", screenshot_set
-        for module_offset in range(NUM_MODULE_POSITIONS):
-            file_name = "{:04d}-full-{}".format(screenshot_set, MODULE_NAME_FOR_OFFSET[module_offset])
-            screenshot_path = os.path.join(SCREENSHOTS_DIRECTORY, file_name + ".png")
-            screenshot = cv2.imread(screenshot_path)
+    for image_path, feature_path in image_and_features_paths:
+        screenshot = cv2.imread(image_path)
 
-            keypoints = detector.detect(screenshot)
-            descriptor = bow_de.compute(screenshot, keypoints)
+        keypoints = detector.detect(screenshot)
+        descriptor = bow_de.compute(screenshot, keypoints)
 
-            feature_path = os.path.join(FEATURES_DIR, file_name + ".npy")
-            with open(feature_path, "w") as f:
-                np.save(f, descriptor)
+        with open(feature_path, "w") as f:
+            np.save(f, descriptor)
 
 
-def translate_data():
+def cluster_features(num_clusters, feature_and_copy_paths):
+    names = []
+    features = None
+    for feature_path, src_path, dst_path_template in feature_and_copy_paths:
+        with open(feature_path) as f:
+            names.append((src_path, dst_path_template))
+            feature = np.load(f)
+            if features is None:
+                features = feature
+            else:
+                features = np.concatenate((features, feature))
+
+    tc = (cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
+    retval, best_labels, centers = cv2.kmeans(features, num_clusters, tc, 1, cv2.KMEANS_PP_CENTERS)
+
+    for i, label in enumerate(best_labels):
+        src_path, dst_path_template = names[i]
+        dst_path = dst_path_template % label
+        print "Copying from %s to %s" % (src_path, dst_path)
+        if not os.path.exists(os.path.dirname(dst_path)):
+            os.makedirs(os.path.dirname(dst_path))
+        shutil.copyfile(src_path, dst_path)
+
+
+def translate_data(labelled_photos_dir, features_dir, svm_data_dir):
     int_to_label = {}
     training_data = None
     training_labels = np.empty([0, 1], dtype=int)
     testing_data = None
     testing_labels = np.empty([0, 1], dtype=int)
     num_loaded = 0
-    for label_int, label_str in enumerate(os.listdir(LABELLED_PHOTOS_DIR)):
+    for label_int, label_str in enumerate(os.listdir(labelled_photos_dir)):
         int_to_label[label_int] = label_str
-        label_dir = os.path.join(LABELLED_PHOTOS_DIR, label_str)
+        label_dir = os.path.join(labelled_photos_dir, label_str)
         if not os.path.isdir(label_dir):
             continue
         for file_name in os.listdir(label_dir):
             without_extension = '.'.join(file_name.split('.')[:-1])
             if not without_extension:
                 continue
-            # features_path = os.path.join(FEATURES_DIR, without_extension + ".yml")
-            # features = load_mat(features_path)
-            features_path = os.path.join(FEATURES_DIR, without_extension + ".npy")
+            features_path = os.path.join(features_dir, without_extension + ".npy")
             with open(features_path, "r") as f:
                 features = np.load(f)
             if int(file_name[:4]) <= MAX_TRAINING_INDEX:
@@ -118,25 +127,25 @@ def translate_data():
             print "Loaded %s" % num_loaded
 
     if not os.path.isdir:
-        os.makedirs(SVM_DATA_DIR)
-    with open(os.path.join(SVM_DATA_DIR, "training_data"), "w") as f:
+        os.makedirs(svm_data_dir)
+    with open(os.path.join(svm_data_dir, "training_data"), "w") as f:
         np.save(f, training_data)
-    with open(os.path.join(SVM_DATA_DIR, "training_labels"), "w") as f:
+    with open(os.path.join(svm_data_dir, "training_labels"), "w") as f:
         np.save(f, training_labels)
-    with open(os.path.join(SVM_DATA_DIR, "testing_data"), "w") as f:
+    with open(os.path.join(svm_data_dir, "testing_data"), "w") as f:
         np.save(f, testing_data)
-    with open(os.path.join(SVM_DATA_DIR, "testing_labels"), "w") as f:
+    with open(os.path.join(svm_data_dir, "testing_labels"), "w") as f:
         np.save(f, testing_labels)
 
 
-def train_classifier():
-    with open(os.path.join(SVM_DATA_DIR, "training_data")) as f:
+def train_classifier(svm_data_dir):
+    with open(os.path.join(svm_data_dir, "training_data")) as f:
         training_data = np.load(f)
-    with open(os.path.join(SVM_DATA_DIR, "training_labels")) as f:
+    with open(os.path.join(svm_data_dir, "training_labels")) as f:
         training_labels = np.load(f)
-    with open(os.path.join(SVM_DATA_DIR, "testing_data")) as f:
+    with open(os.path.join(svm_data_dir, "testing_data")) as f:
         testing_data = np.load(f)
-    with open(os.path.join(SVM_DATA_DIR, "testing_labels")) as f:
+    with open(os.path.join(svm_data_dir, "testing_labels")) as f:
         testing_labels = np.load(f)
 
     svm = cv2.SVM()
@@ -144,7 +153,7 @@ def train_classifier():
                       svm_type=cv2.SVM_C_SVC)
 
     svm.train_auto(training_data, training_labels, None, None, params=svm_params, k_fold=50)
-    svm.save(os.path.join(SVM_DATA_DIR, 'svm_data.dat'))
+    svm.save(os.path.join(svm_data_dir, 'svm_data.dat'))
 
     results = svm.predict_all(testing_data)
     mask = results == testing_labels.reshape((-1, 1))
@@ -152,13 +161,11 @@ def train_classifier():
     print correct*100.0/results.size
 
 
-def run_test():
-    with open(os.path.join(SVM_DATA_DIR, "testing_data")) as f:
+def run_test(svm_data_dir):
+    with open(os.path.join(svm_data_dir, "testing_data")) as f:
         testing_data = np.load(f)
-    with open(os.path.join(SVM_DATA_DIR, "testing_labels")) as f:
+    with open(os.path.join(svm_data_dir, "testing_labels")) as f:
         testing_labels = np.load(f)
-    with open(os.path.join(FEATURES_DIR, "0001-full-bottom-left.npy")) as f:
-        single_features = np.load(f)
 
     labels = defaultdict(lambda: 0)
     for label in testing_labels:
@@ -166,7 +173,7 @@ def run_test():
     print labels
 
     svm = cv2.SVM()
-    svm.load(os.path.join(SVM_DATA_DIR, 'svm_data.dat'))
+    svm.load(os.path.join(svm_data_dir, 'svm_data.dat'))
 
     results = svm.predict_all(testing_data)
     mask = results == testing_labels.reshape((-1, 1))
@@ -174,20 +181,15 @@ def run_test():
     print "Accuracy on test set"
     print correct*100.0/results.size
 
-    print "Single features"
-    print single_features.shape
-    print single_features.dtype
-    print svm.predict(single_features)
 
-
-def save_label_mappings():
+def save_label_mappings(labelled_photos_dir, svm_data_dir):
     int_to_label = {}
-    for label_int, label_str in enumerate(os.listdir(LABELLED_PHOTOS_DIR)):
-        label_dir = os.path.join(LABELLED_PHOTOS_DIR, label_str)
+    for label_int, label_str in enumerate(os.listdir(labelled_photos_dir)):
+        label_dir = os.path.join(labelled_photos_dir, label_str)
         if not os.path.isdir(label_dir):
             continue
         int_to_label[label_int] = label_str
-    with open(os.path.join(SVM_DATA_DIR, "label_mappings.yml"), "w") as f:
+    with open(os.path.join(svm_data_dir, "label_mappings.yml"), "w") as f:
         yaml.dump(int_to_label, f)
 
 
@@ -202,11 +204,100 @@ def load_mat(mat_path):
     return mat
 
 
+def train_module_classifier():
+    vocab_path, unlabelled_dir, labelled_dir, features_dir, svm_data_dir = \
+        get_classifier_directories(PASSWORD_LETTER_DATA_DIR)
+    def module_vocab_paths():
+        current_module_offset = 0
+        for i in range(MAX_INDEX + 1):
+            if i % 3 == 0:
+                continue
+
+            file_name = "{:04d}-full-{}.png".format(i, MODULE_NAME_FOR_OFFSET[current_module_offset])
+            file_path = os.path.join(unlabelled_dir, file_name)
+            current_module_offset = (current_module_offset + 1) % NUM_MODULE_POSITIONS
+            yield file_path
+
+    def image_and_features_path():
+        for screenshot_set in range(MAX_INDEX + 1):
+            if screenshot_set % 3 == 0:
+                continue
+
+            for module_offset in range(NUM_MODULE_POSITIONS):
+                file_name = "{:04d}-full-{}".format(screenshot_set, MODULE_NAME_FOR_OFFSET[module_offset])
+                screenshot_path = os.path.join(unlabelled_dir, file_name + ".png")
+                feature_path = os.path.join(features_dir, file_name + ".npy")
+                yield screenshot_path, feature_path
+
+
+def group_password_letters():
+    num_clusters = 26
+    vocab_path, unlabelled_dir, labelled_dir, features_dir, svm_data_dir =\
+        get_classifier_directories(PASSWORD_LETTER_DATA_DIR)
+
+    def password_vocab_paths():
+        for i, file_name in enumerate(os.listdir(unlabelled_dir)):
+            # Only want some of them
+            if i % 3 != 0:
+                continue
+            yield os.path.join(unlabelled_dir, file_name)
+
+    def password_image_and_feature_paths():
+        for file_name in os.listdir(unlabelled_dir):
+            without_ext, _ = os.path.splitext(file_name)
+            letter_path = os.path.join(unlabelled_dir, file_name)
+            feature_path = os.path.join(features_dir, without_ext + ".npy")
+            yield letter_path, feature_path
+
+    def feature_and_copy_paths():
+        for file_name in os.listdir(unlabelled_dir):
+            without_ext, _ = os.path.splitext(file_name)
+            feature_path = os.path.join(features_dir, without_ext + ".npy")
+            src_path = os.path.join(unlabelled_dir, file_name)
+            dst_path_template = os.path.join(labelled_dir, "%s", file_name)
+            yield feature_path, src_path, dst_path_template
+
+    print "Generating vocab"
+    generate_vocab(password_vocab_paths(), vocab_path)
+    print "Extracting features"
+    extract_features(vocab_path, password_image_and_feature_paths())
+    print "Clustering images"
+    cluster_features(num_clusters, feature_and_copy_paths())
+
+
+def train_password_letters_classifier():
+    letter_data_dir = os.path.join(MODULE_SPECIFIC_DIR, "password", "letters")
+    vocab_path, unlabelled_dir, labelled_dir, features_dir, svm_data_dir = get_classifier_directories(letter_data_dir)
+
+    print "Translating data"
+    translate_data(labelled_dir, features_dir, svm_data_dir)
+    print "Training classifier"
+    train_classifier(svm_data_dir)
+    print "Testing classifier"
+    run_test(svm_data_dir)
+    print "Saving label mappings"
+    save_label_mappings(labelled_dir, svm_data_dir)
+
+
+def manually_group_images():
+    ungrouped = os.path.join(MODULE_SPECIFIC_DIR, "password", "tmp", "unlabelled")
+    grouped = os.path.join(MODULE_SPECIFIC_DIR, "password", "tmp", "labelled")
+    for file_path in ls(ungrouped):
+        folder_name = chr(show(cv2.imread(file_path)))
+        folder = os.path.join(grouped, folder_name)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        dst = os.path.join(grouped, folder, os.path.basename(file_path))
+        shutil.copyfile(file_path, dst)
+
 if __name__ == '__main__':
+    # group_password_letters()
+    # manually_group_images()
+    train_password_letters_classifier()
     # generate_vocab()
     # extract_features()
     # translate_data()
     # train_classifier()
-    run_test()
+    # run_test()
     # save_label_mappings()
     pass

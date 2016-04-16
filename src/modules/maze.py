@@ -3,9 +3,9 @@ import os
 import Quartz
 import cv2
 
-from constants import LABELLED_PHOTOS_DIR
+from constants import MODULE_CLASSIFIER_DIR
 from modules.maze_cv import get_maze_params, get_button_locations
-from cv_helpers import show
+from cv_helpers import show, get_classifier_directories
 from modules.maze_solution import find_path_through_maze, UP, RIGHT, DOWN, LEFT
 from mouse_helpers import MouseButton, click_pixels, pre_drag_delay, open_close_delay
 
@@ -32,7 +32,9 @@ def solve_maze(image, offset):
 
 
 def solve_stored_mazes():
-    maze_dir = os.path.join(LABELLED_PHOTOS_DIR, "maze")
+    vocab_path, unlabelled_dir, labelled_dir, features_dir, svm_data_dir = \
+        get_classifier_directories(MODULE_CLASSIFIER_DIR)
+    maze_dir = os.path.join(labelled_dir, "maze")
     for i, file_name in enumerate(os.listdir(maze_dir)):
         # if file_name != "0023-full-bottom-left.png":
         #     continue

@@ -1,3 +1,5 @@
+import os
+
 import cv2
 import numpy as np
 
@@ -5,7 +7,7 @@ import numpy as np
 def show(image):
     cv2.namedWindow("test")
     cv2.imshow("test", image)
-    cv2.waitKey()
+    return cv2.waitKey()
 
 
 def get_drawn_contours(im, contours):
@@ -18,6 +20,11 @@ def get_drawn_contours(im, contours):
     show_contours[:, :] = pixel_value
     cv2.drawContours(show_contours, contours, -1, (0, 255, 0), 1)
     return show_contours
+
+
+def get_center_for_contour(contour):
+    x, y, w, h = cv2.boundingRect(contour)
+    return x + w / 2, y + h / 2
 
 
 def order_points(pts):
@@ -82,3 +89,57 @@ def four_point_transform(image, pts):
 
     # return the warped image
     return warped
+
+
+def inflate_classifier(classifier_root_dir):
+    vocab_path, unlabelled_dir, labelled_dir, features_dir, svm_data_dir = \
+        get_classifier_directories(classifier_root_dir)
+    with open(vocab_path, "rb") as f:
+        vocab = np.load(f)
+
+    # FLANN parameters
+    flann_index_kdtree = 0
+    index_params = dict(algorithm=flann_index_kdtree, trees=5)
+    search_params = dict(checks=50)  # or pass empty dictionary
+    matcher = cv2.FlannBasedMatcher(index_params, search_params)
+    detector = cv2.SIFT()
+    extractor = cv2.DescriptorExtractor_create("SIFT")
+    bow_de = cv2.BOWImgDescriptorExtractor(extractor, matcher)
+    bow_de.setVocabulary(vocab)
+
+    svm = cv2.SVM()
+    svm.load(os.path.join(svm_data_dir, "svm_data.dat"))
+
+    def classifier(image):
+        keypoints = detector.detect(image)
+        descriptor = bow_de.compute(image, keypoints)
+        return svm.predict(descriptor)
+
+    return classifier
+
+
+def get_classifier_directories(root_dir):
+    vocab_path = os.path.join(root_dir, "vocab.npy")
+    unlabelled_dir = os.path.join(root_dir, "unlabelled")
+    labelled_dir = os.path.join(root_dir, "labelled")
+    features_dir = os.path.join(root_dir, "features")
+    svm_data_dir = os.path.join(root_dir, "svm_data")
+
+    dirs = (
+        unlabelled_dir,
+        labelled_dir,
+        features_dir,
+        svm_data_dir
+    )
+    for directory in dirs:
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+    return (vocab_path, ) + dirs
+
+
+def ls(path):
+    for name in os.listdir(path):
+        if name == ".DS_Store":
+            continue
+        yield os.path.join(path, name)
