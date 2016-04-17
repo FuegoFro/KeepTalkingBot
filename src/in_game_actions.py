@@ -17,15 +17,11 @@ def flip_side():
     end_x_percent = start_x_percent + delta_percent
     y_percent = 50
 
-    open_bomb()
-
     mouse_percent(MouseEvent.right_mouse_down, start_x_percent, y_percent)
     pre_drag_delay()
     mouse_percent(MouseEvent.right_mouse_dragged, end_x_percent, y_percent)
     mouse_percent(MouseEvent.right_mouse_up, end_x_percent, y_percent)
     post_drag_delay()
-
-    close_once()
 
 
 def quit_game():

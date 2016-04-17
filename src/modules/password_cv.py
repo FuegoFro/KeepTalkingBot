@@ -85,10 +85,7 @@ def find_submit_button(im):
 
     contours, hierarchy = cv2.findContours(im_mono, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    def contour_area(contour):
-        x, y, w, h = cv2.boundingRect(contour)
-        return w * h
-    largest_contour = sorted(contours, key=contour_area)[-1]
+    largest_contour = sorted(contours, key=cv2.contourArea)[-1]
 
     return get_center_for_contour(largest_contour)
 

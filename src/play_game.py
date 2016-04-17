@@ -8,8 +8,8 @@ from mouse_helpers import MouseButton, open_bomb, close_once, open_close_delay, 
 from screenshot_helpers import determine_visible_modules, get_current_module_screenshot
 
 
-def is_solvable(module_type):
-    return module_type not in (Type.blank, Type.clock)
+def is_solvable(module_type, module_solvers):
+    return module_type in module_solvers
 
 
 def solve_module(module_solvers, module_type, screenshot, top_left):
@@ -18,11 +18,9 @@ def solve_module(module_solvers, module_type, screenshot, top_left):
 
 
 def solve_modules_on_this_side(classifier, module_solvers):
-    open_bomb()
-
     for module_type, (x, y) in determine_visible_modules(classifier):
         print "module type", module_type, "(x, y)=", x, y
-        if not is_solvable(module_type):
+        if not is_solvable(module_type, module_solvers):
             continue
         click_pixels(MouseButton.left, x, y)
         open_close_delay()
@@ -30,17 +28,20 @@ def solve_modules_on_this_side(classifier, module_solvers):
         solve_module(module_solvers, module_type, screenshot, top_left)
         close_once()
 
-    close_once()
-
 
 def play_game():
     time.sleep(2)
     classifier = inflate_classifier(MODULE_CLASSIFIER_DIR)
     solvers = create_solvers()
     start_game()
+    open_bomb()
     solve_modules_on_this_side(classifier, solvers)
     flip_side()
+    # Ideally we could remove this close/open cycle
+    close_once()
+    open_bomb()
     solve_modules_on_this_side(classifier, solvers)
+    close_once()
     quit_game()
 
 if __name__ == '__main__':

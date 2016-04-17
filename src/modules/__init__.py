@@ -33,10 +33,12 @@ class ModuleSolver(object):
 def create_solvers():
     from modules.maze import MazeSolver
     from modules.password import PasswordSolver
+    from modules.whos_on_first import WhosOnFirstSolver
 
     module_solver_classes = (
         MazeSolver,
         PasswordSolver,
+        WhosOnFirstSolver,
     )
 
     solvers = {}

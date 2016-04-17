@@ -9,11 +9,12 @@ import yaml
 from constants import MODULE_SPECIFIC_DIR
 from cv_helpers import show, get_classifier_directories, ls
 from modules.password import PASSWORD_LETTER_CLASSIFIER_DIR
+from modules.whos_on_first import WHOS_ON_FIRST_BUTTON_CLASSIFIER_DIR
 
 NUM_MODULE_POSITIONS = 6
 
 MAX_INDEX = 374
-MAX_TRAINING_INDEX = MAX_INDEX * 8 / 10  # Keep 10% of the data for testing
+MAX_TRAINING_INDEX = MAX_INDEX * 9 / 10
 # MAX_TRAINING_INDEX_STRING = "{0:04d}".format(MAX_TRAINING_INDEX)
 
 MODULE_NAME_FOR_OFFSET = ["top-left", "top-middle", "top-right", "bottom-left", "bottom-middle", "bottom-right"]
@@ -79,13 +80,13 @@ def cluster_features(num_clusters, feature_and_copy_paths):
             else:
                 features = np.concatenate((features, feature))
 
-    tc = (cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
-    retval, best_labels, centers = cv2.kmeans(features, num_clusters, tc, 1, cv2.KMEANS_PP_CENTERS)
+    tc = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 1000, 0.0001)
+    retval, best_labels, centers = cv2.kmeans(features, num_clusters, tc, 10, cv2.KMEANS_PP_CENTERS)
 
     for i, label in enumerate(best_labels):
         src_path, dst_path_template = names[i]
         dst_path = dst_path_template % label
-        print "Copying from %s to %s" % (src_path, dst_path)
+        # print "Copying from %s to %s" % (src_path, dst_path)
         if not os.path.exists(os.path.dirname(dst_path)):
             os.makedirs(os.path.dirname(dst_path))
         shutil.copyfile(src_path, dst_path)
@@ -230,20 +231,23 @@ def train_module_classifier():
                 yield screenshot_path, feature_path
 
 
-def group_password_letters():
-    num_clusters = 26
+def cluster_images_pipeline(classifier_dir, num_clusters):
     vocab_path, unlabelled_dir, labelled_dir, features_dir, svm_data_dir =\
-        get_classifier_directories(PASSWORD_LETTER_CLASSIFIER_DIR)
+        get_classifier_directories(classifier_dir)
 
-    def password_vocab_paths():
+    def representative_image_paths():
         for i, file_name in enumerate(os.listdir(unlabelled_dir)):
-            # Only want some of them
-            if i % 3 != 0:
+            if file_name == ".DS_Store":
                 continue
+            # Only want some of them
+            # if i % 3 != 0:
+            #     continue
             yield os.path.join(unlabelled_dir, file_name)
 
-    def password_image_and_feature_paths():
+    def image_and_feature_paths():
         for file_name in os.listdir(unlabelled_dir):
+            if file_name == ".DS_Store":
+                continue
             without_ext, _ = os.path.splitext(file_name)
             letter_path = os.path.join(unlabelled_dir, file_name)
             feature_path = os.path.join(features_dir, without_ext + ".npy")
@@ -251,6 +255,8 @@ def group_password_letters():
 
     def feature_and_copy_paths():
         for file_name in os.listdir(unlabelled_dir):
+            if file_name == ".DS_Store":
+                continue
             without_ext, _ = os.path.splitext(file_name)
             feature_path = os.path.join(features_dir, without_ext + ".npy")
             src_path = os.path.join(unlabelled_dir, file_name)
@@ -258,16 +264,15 @@ def group_password_letters():
             yield feature_path, src_path, dst_path_template
 
     print "Generating vocab"
-    generate_vocab(password_vocab_paths(), vocab_path)
+    generate_vocab(representative_image_paths(), vocab_path)
     print "Extracting features"
-    extract_features(vocab_path, password_image_and_feature_paths())
+    extract_features(vocab_path, image_and_feature_paths())
     print "Clustering images"
     cluster_features(num_clusters, feature_and_copy_paths())
 
 
-def train_password_letters_classifier():
-    letter_data_dir = os.path.join(MODULE_SPECIFIC_DIR, "password", "letters")
-    vocab_path, unlabelled_dir, labelled_dir, features_dir, svm_data_dir = get_classifier_directories(letter_data_dir)
+def train_classifier_pipeline(classifier_dir):
+    vocab_path, unlabelled_dir, labelled_dir, features_dir, svm_data_dir = get_classifier_directories(classifier_dir)
 
     print "Translating data"
     translate_data(labelled_dir, features_dir, svm_data_dir)
@@ -279,25 +284,26 @@ def train_password_letters_classifier():
     save_label_mappings(labelled_dir, svm_data_dir)
 
 
-def manually_group_images():
-    ungrouped = os.path.join(MODULE_SPECIFIC_DIR, "password", "tmp", "unlabelled")
-    grouped = os.path.join(MODULE_SPECIFIC_DIR, "password", "tmp", "labelled")
-    for file_path in ls(ungrouped):
+def manually_group_images(classifier_dir):
+    vocab_path, unlabelled_dir, labelled_dir, features_dir, svm_data_dir = get_classifier_directories(classifier_dir)
+
+    for file_path in ls(unlabelled_dir):
         folder_name = chr(show(cv2.imread(file_path)))
-        folder = os.path.join(grouped, folder_name)
+        folder = os.path.join(labelled_dir, folder_name)
         if not os.path.exists(folder):
             os.makedirs(folder)
-        dst = os.path.join(grouped, folder, os.path.basename(file_path))
+        dst = os.path.join(labelled_dir, folder, os.path.basename(file_path))
         shutil.copyfile(file_path, dst)
 
-if __name__ == '__main__':
-    # group_password_letters()
-    # manually_group_images()
-    train_password_letters_classifier()
-    # generate_vocab()
-    # extract_features()
-    # translate_data()
-    # train_classifier()
-    # run_test()
-    # save_label_mappings()
+
+def main():
+    classifier_dir = WHOS_ON_FIRST_BUTTON_CLASSIFIER_DIR
+    # cluster_images_pipeline(classifier_dir, 2)
+    train_classifier_pipeline(classifier_dir)
+    # manually_group_images(classifier_dir)
     pass
+
+
+
+if __name__ == '__main__':
+    main()

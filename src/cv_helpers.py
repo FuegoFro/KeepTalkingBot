@@ -10,16 +10,20 @@ def show(image):
     return cv2.waitKey()
 
 
-def get_drawn_contours(im, contours):
-    show_contours = np.empty(im.shape)
-    if len(im.shape) == 3:
-        pixel_value = [0] * im.shape[2]
+def get_drawn_contours(im, contours, draw_to_existing_image=False):
+    if draw_to_existing_image:
+        im = im.copy()
     else:
-        assert len(im.shape) == 2, "Expected image to have 2 or 3 dimens, has %s" % len(im.shape)
-        pixel_value = 0
-    show_contours[:, :] = pixel_value
-    cv2.drawContours(show_contours, contours, -1, (0, 255, 0), 1)
-    return show_contours
+        im = np.empty(im.shape)
+        if len(im.shape) == 3:
+            pixel_value = [0] * im.shape[2]
+        else:
+            assert len(im.shape) == 2, "Expected image to have 2 or 3 dimens, has %s" % len(im.shape)
+            pixel_value = 0
+        im[:, :] = pixel_value
+
+    cv2.drawContours(im, contours, -1, (0, 255, 0), 1)
+    return im
 
 
 def get_center_for_contour(contour):
@@ -51,7 +55,7 @@ def order_points(pts):
     return rect
 
 
-def four_point_transform(image, pts):
+def four_point_transform(image, pts, margin_percent=0):
     # obtain a consistent order of the points and unpack them
     # individually
     rect = order_points(pts)
@@ -76,16 +80,19 @@ def four_point_transform(image, pts):
     # (i.e. top-down view) of the image, again specifying points
     # in the top-left, top-right, bottom-right, and bottom-left
     # order
+    margin_width = max_width * margin_percent / 100
+    margin_height = max_width * margin_percent / 100
     dst = np.array([
-        [0, 0],
-        [max_width - 1, 0],
-        [max_width - 1, max_height - 1],
-        [0, max_height - 1]
+        [margin_width, margin_height],
+        [margin_width + max_width, margin_height],
+        [margin_width + max_width, margin_height + max_height],
+        [margin_width, margin_height + max_height],
     ], dtype="float32")
 
     # compute the perspective transform matrix and then apply it
     perspective_transform = cv2.getPerspectiveTransform(rect, dst)
-    warped = cv2.warpPerspective(image, perspective_transform, (max_width, max_height))
+    warped = cv2.warpPerspective(image, perspective_transform,
+                                 (2 * margin_width + max_width, 2 * margin_height + max_height))
 
     # return the warped image
     return warped
@@ -135,7 +142,7 @@ def get_classifier_directories(root_dir):
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-    return (vocab_path, ) + dirs
+    return (vocab_path,) + dirs
 
 
 def ls(path):
