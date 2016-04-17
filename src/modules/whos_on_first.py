@@ -27,19 +27,20 @@ def test():
     vocab_path, unlabelled_dir, labelled_dir, features_dir, svm_data_dir = \
         get_classifier_directories(MODULE_CLASSIFIER_DIR)
     i = 0
+    # for path in ["/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/whos_on_first/in_game_6.png"]:
     for path in ls(os.path.join(labelled_dir, "whos_on_first")):
-        # i += 1
-        # if i >= 50:
-        #     break
-        name = "-module-".join(os.path.basename(path).split("-full-"))
-        # if name != "0119-module-top-right.png":
+        i += 1
+        # if i < 50:
         #     continue
-        # print name
+        if i >= 50:
+            break
+        name = "-module-".join(os.path.basename(path).split("-full-"))
         path = os.path.join(unlabelled_dir, name)
         im = cv2.imread(path)
-        screen_text = get_screen_content(im, tesseract)
-        if screen_text not in SCREEN_TO_BUTTON_TO_READ:
-            print "Could not find screen text: ", screen_text
+        # show(im)
+        screen_text = get_screen_content(im, tesseract, 9999)
+        # if screen_text not in SCREEN_TO_BUTTON_TO_READ:
+        #     print "Could not find screen text: ", screen_text
         # print screen_text
         # buttons = get_buttons_and_positions(im, classifier, tesseract)
         # for b in buttons:

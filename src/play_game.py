@@ -33,16 +33,17 @@ def play_game():
     time.sleep(2)
     classifier = inflate_classifier(MODULE_CLASSIFIER_DIR)
     solvers = create_solvers()
-    start_game()
-    open_bomb()
-    solve_modules_on_this_side(classifier, solvers)
-    flip_side()
-    # Ideally we could remove this close/open cycle
-    close_once()
-    open_bomb()
-    solve_modules_on_this_side(classifier, solvers)
-    close_once()
-    quit_game()
+    while True:
+        start_game()
+        open_bomb()
+        solve_modules_on_this_side(classifier, solvers)
+        flip_side()
+        # Ideally we could remove this close/open cycle
+        close_once()
+        open_bomb()
+        solve_modules_on_this_side(classifier, solvers)
+        close_once()
+        quit_game()
 
 if __name__ == '__main__':
     play_game()

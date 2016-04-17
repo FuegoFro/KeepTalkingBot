@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 from constants import MODULE_SPECIFIC_DIR
-from cv_helpers import four_point_transform, get_center_for_contour, show
+from cv_helpers import four_point_transform, get_center_for_contour, show, get_drawn_contours
 
 LABEL_TO_BUTTON = {
     1: "BLANK",
@@ -38,17 +38,31 @@ LABEL_TO_BUTTON = {
 }
 
 
+def _is_valid_screen_contour(im, contour):
+    if len(contour) != 4 or not cv2.isContourConvex(contour):
+        return False
+
+    # Make sure it's fully contained in the upper third of the module
+    max_height = im.shape[0] / 3
+    x, y, w, h = cv2.boundingRect(contour)
+    return x < max_height and x + h < max_height
+
+
 def get_screen_content(im, tesseract, debug_idx):
+    orig_im = im
     color = 110
-    sensitivity = 10
+    sensitivity = 20
     lower_bound = np.array([color - sensitivity, 0, 0])
     upper_bound = np.array([color + sensitivity, 125, 65])
     hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
     im_mono = cv2.inRange(hsv, lower_bound, upper_bound)
+    # show(im_mono)
 
     contours, hierarchy = cv2.findContours(im_mono, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours = [cv2.approxPolyDP(c, 5, True) for c in contours]
-    contour = sorted([c for c in contours if len(c) == 4], key=cv2.contourArea)[-1]
+    contours = sorted([c for c in contours if _is_valid_screen_contour(im, c)], key=cv2.contourArea)
+    # show(get_drawn_contours(im, contours))
+    contour = contours[-1]
     contour = contour.reshape((4, 2))
 
     im = four_point_transform(im, contour)
@@ -56,17 +70,21 @@ def get_screen_content(im, tesseract, debug_idx):
     retval, im = cv2.threshold(im, 200, 255, cv2.THRESH_BINARY)
 
     cv2.imwrite(os.path.join(MODULE_SPECIFIC_DIR, "whos_on_first", "in_game_%i_screen.png" % debug_idx), im)
+    # show(im)
 
     # Special case handling for the screen without anything on it.
     if im.sum() == 0:
-        return ""
+        screen_text = ""
+    else:
+        tesseract.set_image(im)
+        screen_text = tesseract.get_utf8_text().upper().strip()
 
-    tesseract.set_image(im)
-    screen_text = tesseract.get_utf8_text().upper().strip()
+        # Special case to handle tesseract messing up
+        if screen_text == "THEYARE":
+            screen_text = "THEY ARE"
 
-    # Special case to handle tesseract messing up
-    if screen_text == "THEYARE":
-        screen_text = "THEY ARE"
+    # print screen_text
+    # show(get_drawn_contours(orig_im, [contour], True))
 
     return screen_text
 

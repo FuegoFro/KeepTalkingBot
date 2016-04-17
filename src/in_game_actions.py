@@ -8,7 +8,7 @@ def start_game():
     click_percent(MouseButton.left, 25, 55)
     open_close_delay()
     click_percent(MouseButton.left, 40, 70)
-    time.sleep(20)
+    time.sleep(16)
 
 
 def flip_side():
@@ -28,4 +28,4 @@ def quit_game():
     click_percent(MouseButton.left, 75, 70)
     open_close_delay()
     click_percent(MouseButton.left, 65, 45)
-    time.sleep(5)
+    time.sleep(3)
