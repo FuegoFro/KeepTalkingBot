@@ -16,16 +16,16 @@ SCREEN_TO_BUTTON_TO_READ = {
     "RED": ButtonPosition.middle_right,
     "REED": ButtonPosition.bottom_left,
     "LEED": ButtonPosition.bottom_left,
-    "HOLD ON": ButtonPosition.bottom_right,
+    "HOLDON": ButtonPosition.bottom_right,
     "YOU": ButtonPosition.middle_right,
-    "YOU ARE": ButtonPosition.bottom_right,
+    "YOUARE": ButtonPosition.bottom_right,
     "YOUR": ButtonPosition.middle_right,
     "YOU'RE": ButtonPosition.middle_right,
     "UR": ButtonPosition.top_left,
     "THERE": ButtonPosition.bottom_right,
     "THEY'RE": ButtonPosition.bottom_left,
     "THEIR": ButtonPosition.middle_right,
-    "THEY ARE": ButtonPosition.middle_left,
+    "THEYARE": ButtonPosition.middle_left,
     "SEE": ButtonPosition.bottom_right,
     "C": ButtonPosition.top_right,
     "CEE": ButtonPosition.bottom_right,
@@ -79,7 +79,7 @@ def button_to_press(screen_text, buttons):
 
     for word in word_list:
         if word in word_to_position:
-            print "Closest word was", word
+
             return word_to_position[word]
 
     assert False, "Couldn't find button in word list"

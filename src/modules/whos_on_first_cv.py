@@ -77,11 +77,7 @@ def get_screen_content(im, tesseract, debug_idx):
         screen_text = ""
     else:
         tesseract.set_image(im)
-        screen_text = tesseract.get_utf8_text().upper().strip()
-
-        # Special case to handle tesseract messing up
-        if screen_text == "THEYARE":
-            screen_text = "THEY ARE"
+        screen_text = tesseract.get_utf8_text().upper().strip().replace(" ", "")
 
     # print screen_text
     # show(get_drawn_contours(orig_im, [contour], True))

@@ -9,6 +9,7 @@ import yaml
 from constants import MODULE_SPECIFIC_DIR
 from cv_helpers import show, get_classifier_directories, ls
 from modules.password import PASSWORD_LETTER_CLASSIFIER_DIR
+from modules.symbols_cv import SYMBOLS_CLASSIFIER_DIR
 from modules.whos_on_first import WHOS_ON_FIRST_BUTTON_CLASSIFIER_DIR
 
 NUM_MODULE_POSITIONS = 6
@@ -240,7 +241,7 @@ def cluster_images_pipeline(classifier_dir, num_clusters):
             if file_name == ".DS_Store":
                 continue
             # Only want some of them
-            # if i % 3 != 0:
+            # if i % 10 != 0:
             #     continue
             yield os.path.join(unlabelled_dir, file_name)
 
@@ -297,12 +298,13 @@ def manually_group_images(classifier_dir):
 
 
 def main():
-    classifier_dir = WHOS_ON_FIRST_BUTTON_CLASSIFIER_DIR
+    # classifier_dir = WHOS_ON_FIRST_BUTTON_CLASSIFIER_DIR
+    classifier_dir = SYMBOLS_CLASSIFIER_DIR
+    # classifier_dir = os.path.join(MODULE_SPECIFIC_DIR, "symbols", "tmp")
     # cluster_images_pipeline(classifier_dir, 2)
     train_classifier_pipeline(classifier_dir)
     # manually_group_images(classifier_dir)
     pass
-
 
 
 if __name__ == '__main__':

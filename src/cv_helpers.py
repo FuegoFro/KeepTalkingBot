@@ -14,13 +14,8 @@ def get_drawn_contours(im, contours, draw_to_existing_image=False):
     if draw_to_existing_image:
         im = im.copy()
     else:
-        im = np.empty(im.shape)
-        if len(im.shape) == 3:
-            pixel_value = [0] * im.shape[2]
-        else:
-            assert len(im.shape) == 2, "Expected image to have 2 or 3 dimens, has %s" % len(im.shape)
-            pixel_value = 0
-        im[:, :] = pixel_value
+        im = np.empty((im.shape[0], im.shape[1], 3))
+        im[:, :] = [0, 0, 0]
 
     cv2.drawContours(im, contours, -1, (0, 255, 0), 1)
     return im
