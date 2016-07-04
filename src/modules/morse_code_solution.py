@@ -122,12 +122,38 @@ class MorseCodeState(object):
                 # the range of the array.
                 self.word_start_index = self.next_letter_index % 5
 
+    def _get_word_if_possible(self):
+        # This function tries to find the word given a subset of the total possible information
+        if self.next_letter_index == 0:
+            # We have no information yet, so we can't know the word yet.
+            return None
+
+        def find_single_matching_word(predicate):
+            # This helper function will check to see if exactly one word matches the given predicate. If so, it will
+            # return that word, otherwise it'll return None.
+            possible_word = None
+            for word in _ORDERED_WORDS:
+                if predicate(word):
+                    if possible_word is not None:
+                        # Multiple possibilities, we don't know what word it is
+                        return None
+                    possible_word = word
+            return possible_word
+
+        if self.word_start_index is None:
+            # No start index, so we have to look inside every word
+            partial_word = "".join(self.letters[:self.next_letter_index])
+            return find_single_matching_word(lambda word: word.find(partial_word) != -1)
+        else:
+            # We have a start index, can check beginnings and ends of words
+            end = "".join(self.letters[:self.word_start_index])
+            start = "".join(self.letters[self.word_start_index:self.next_letter_index])
+            return find_single_matching_word(lambda word: word.startswith(start) and word.endswith(end))
+
     def is_word_known(self):
-        # For now just wait until we have everything. We can eventually look into early terminating.
-        return self.next_letter_index == len(self.letters)
+        return self._get_word_if_possible() is not None
 
     def get_num_time_to_press_right_arrow(self):
-        assert self.is_word_known()
-        ordered_letters = self.letters[self.word_start_index:] + self.letters[:self.word_start_index]
-        word = "".join(ordered_letters)
+        word = self._get_word_if_possible()
+        assert word is not None
         return _ORDERED_WORDS.index(word)
