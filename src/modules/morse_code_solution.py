@@ -143,7 +143,7 @@ class MorseCodeState(object):
         if self.word_start_index is None:
             # No start index, so we have to look inside every word
             partial_word = "".join(self.letters[:self.next_letter_index])
-            return find_single_matching_word(lambda word: word.find(partial_word) != -1)
+            return find_single_matching_word(lambda word: partial_word in word)
         else:
             # We have a start index, can check beginnings and ends of words
             end = "".join(self.letters[:self.word_start_index])

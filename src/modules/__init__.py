@@ -38,6 +38,7 @@ def create_solvers():
     from modules.whos_on_first import WhosOnFirstSolver
     from modules.symbols import SymbolsSolver
     from modules.morse_code import MorseCodeSolver
+    from modules.wire_sequence import WireSequenceSolver
 
     module_solver_classes = (
         MazeSolver,
@@ -45,6 +46,7 @@ def create_solvers():
         WhosOnFirstSolver,
         SymbolsSolver,
         MorseCodeSolver,
+        WireSequenceSolver,
     )
 
     solvers = {}

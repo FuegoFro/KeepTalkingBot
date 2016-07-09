@@ -155,3 +155,16 @@ def apply_offset_to_locations(locations, offset):
 def apply_offset_to_single_location(location, offset):
     x_offset, y_offset = offset
     return location[0] + x_offset, location[1] + y_offset
+
+
+def extract_color(im, hue, saturation, value):
+    # type: (np.ndarray, Union[int, Tuple[int, int]], Tuple[int, int], Tuple[int, int]) -> np.ndarray
+    if isinstance(hue, int):
+        sensitivity = 10
+        hue = (hue - sensitivity, hue + sensitivity)
+    lower_bound = np.array([hue[0], saturation[0], value[0]])
+    upper_bound = np.array([hue[1], saturation[1], value[1]])
+    hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
+    mono = cv2.inRange(hsv, lower_bound, upper_bound)
+
+    return mono
