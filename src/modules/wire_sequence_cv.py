@@ -48,17 +48,18 @@ def get_connections(im):
             # Convert the mask to be usable in a masked_array
             bool_mask = np.invert(mask.astype(bool))
             # We only want to consider it a wire there if there's at least 75% of the mask filled in
-            activation_threshold = bool_mask.sum() * .75
+            activation_threshold = bool_mask.sum() * .66
 
-            for name, color_mat in colors:
+            for color, color_mat in colors:
                 activated_amount = np.ma.masked_array(color_mat, mask=bool_mask).sum()
                 if activated_amount > activation_threshold:
                     assert current_output is None, "Found multiple wires from a single start point"
-                    current_output = _get_output_for_connection(name, start_row, end_row)
-                    # combined = np.zeros_like(im)
-                    # combined[:, :, 0] = color_mat
-                    # combined[:, :, 2] = mask
-                    # show(combined)
+                    current_output = _get_output_for_connection(color, start_row, end_row)
+                    print current_output
+                # combined = np.zeros_like(im)
+                # combined[:, :, 0] = color_mat
+                # combined[:, :, 2] = mask
+                # show(combined)
         if current_output is not None:
             output.append(current_output)
     return output
@@ -77,16 +78,17 @@ def get_down_button(im):
 
 def test():
     to_try = (
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0089.png",
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0090.png",
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0091.png",
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0092.png",
+        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0089.png",
+        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0090.png",
+        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0091.png",
+        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0092.png",
+        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0105.png",
     )
 
     for path in to_try:
         im = cv2.imread(path)
 
-        print get_connections(im)
+        get_connections(im)
         down_button = get_down_button(im)
         cv2.circle(im, down_button, 20, (255, 0, 0), 20)
         show(im)
