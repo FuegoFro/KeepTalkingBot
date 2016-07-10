@@ -6,13 +6,9 @@ import cv2
 import numpy as np
 import yaml
 
-from constants import MODULE_SPECIFIC_DIR
 from cv_helpers import show, get_classifier_directories, ls
-from modules.memory import BUTTONS_CLASSIFIER_DIR
-from modules.memory_cv import SCREEN_CLASSIFIER_DIR, BUTTONS_CLASSIFIER_DIR
+from modules.memory_cv import BUTTONS_CLASSIFIER_DIR
 from modules.password import PASSWORD_LETTER_CLASSIFIER_DIR
-from modules.symbols_cv import SYMBOLS_CLASSIFIER_DIR
-from modules.whos_on_first import WHOS_ON_FIRST_BUTTON_CLASSIFIER_DIR
 
 NUM_MODULE_POSITIONS = 6
 

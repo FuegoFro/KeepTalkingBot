@@ -5,10 +5,10 @@ import time
 import cv2
 
 from constants import MODULE_CLASSIFIER_DIR, MODULE_SPECIFIC_DIR
-from cv_helpers import get_classifier_directories, ls, show, inflate_classifier, apply_offset_to_locations
+from cv_helpers import get_classifier_directories, ls, inflate_classifier, apply_offset_to_locations
 from modules import ModuleSolver, Type
 from modules.whos_on_first_cv import get_buttons_and_positions, get_screen_content
-from modules.whos_on_first_solution import button_to_press, SCREEN_TO_BUTTON_TO_READ
+from modules.whos_on_first_solution import button_to_press
 from mouse_helpers import click_pixels, MouseButton, post_click_delay
 from screenshot_helpers import get_current_module_screenshot
 

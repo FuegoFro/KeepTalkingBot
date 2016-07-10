@@ -3,9 +3,9 @@ import os
 import cv2
 import numpy as np
 
-from constants import MODULE_SPECIFIC_DIR, MODULE_CLASSIFIER_DIR
-from cv_helpers import extract_color, four_point_transform, get_classifier_directories, ls, get_center_for_contour, \
-    get_drawn_contours, show, inflate_classifier
+from constants import MODULE_SPECIFIC_DIR
+from cv_helpers import extract_color, four_point_transform, get_center_for_contour, \
+    show, inflate_classifier
 
 SCREEN_CLASSIFIER_DIR = os.path.join(MODULE_SPECIFIC_DIR, "memory", "screen")
 BUTTONS_CLASSIFIER_DIR = os.path.join(MODULE_SPECIFIC_DIR, "memory", "buttons")

@@ -3,7 +3,7 @@ import time
 from constants import MODULE_CLASSIFIER_DIR
 from cv_helpers import inflate_classifier
 from in_game_actions import flip_side, start_game, quit_game
-from modules import Type, create_solvers
+from modules import create_solvers
 from mouse_helpers import MouseButton, open_bomb, close_once, open_close_delay, click_pixels
 from screenshot_helpers import determine_visible_modules, get_current_module_screenshot, initialize_debug_screenshot
 

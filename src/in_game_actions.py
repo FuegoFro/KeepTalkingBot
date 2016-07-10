@@ -1,7 +1,7 @@
 import time
 
-from mouse_helpers import click_percent, MouseButton, open_close_delay, mouse_percent, MouseEvent, open_bomb, pre_drag_delay, \
-    post_drag_delay, close_once
+from mouse_helpers import click_percent, MouseButton, open_close_delay, mouse_percent, MouseEvent, pre_drag_delay, \
+    post_drag_delay
 
 
 def start_game():

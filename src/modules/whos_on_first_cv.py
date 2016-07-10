@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 from constants import MODULE_SPECIFIC_DIR
-from cv_helpers import four_point_transform, get_center_for_contour, show, get_drawn_contours
+from cv_helpers import four_point_transform, get_center_for_contour
 
 LABEL_TO_BUTTON = {
     1: "BLANK",
