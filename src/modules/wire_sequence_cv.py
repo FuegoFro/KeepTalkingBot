@@ -53,14 +53,18 @@ def get_connections(im):
             for color, color_mat in colors:
                 activated_amount = np.ma.masked_array(color_mat, mask=bool_mask).sum()
                 if activated_amount > activation_threshold:
-                    assert current_output is None, "Found multiple wires from a single start point"
-                    current_output = _get_output_for_connection(color, start_row, end_row)
-                    print current_output
+                    new_output = _get_output_for_connection(color, start_row, end_row)
+                    new_output_and_activated = (new_output, activated_amount)
+                    if current_output is None:
+                        current_output = new_output_and_activated
+                    else:
+                        current_output = sorted((current_output, new_output_and_activated), key=lambda x: x[1])[-1]
                 # combined = np.zeros_like(im)
                 # combined[:, :, 0] = color_mat
                 # combined[:, :, 2] = mask
                 # show(combined)
         if current_output is not None:
+            print current_output
             output.append(current_output)
     return output
 
@@ -78,14 +82,16 @@ def get_down_button(im):
 
 def test():
     to_try = (
-        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0089.png",
-        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0090.png",
-        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0091.png",
-        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0092.png",
+        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0089.png",
+        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0090.png",
+        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0091.png",
+        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0092.png",
         "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0105.png",
+        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0856.png",
     )
 
     for path in to_try:
+        print "---------- NEXT IMAGE ------------"
         im = cv2.imread(path)
 
         get_connections(im)

@@ -19,10 +19,12 @@ class MorseCodeSolver(ModuleSolver):
         right_arrow_location = arrow_locations[1]
         tx_button_location = apply_offset_to_single_location(find_tx_button(image), offset)
 
-        last_seen_light_state = is_light_on(screenshot_helper.get_current_module_screenshot(allow_bad_lighting=True)[0])
+        last_seen_light_state = is_light_on(
+            screenshot_helper.get_current_module_screenshot(allow_bad_lighting=True, suppress_debug_copy=True)[0])
         last_seen_start_time = None
         while not state.is_word_known():
-            current_light_state = is_light_on(screenshot_helper.get_current_module_screenshot(allow_bad_lighting=True)[0])
+            current_light_state = is_light_on(
+                screenshot_helper.get_current_module_screenshot(allow_bad_lighting=True, suppress_debug_copy=True)[0])
             if current_light_state == last_seen_light_state:
                 # Not sleeping because it takes long enough to grab and process a screenshot.
                 # Busy waiting FTW!

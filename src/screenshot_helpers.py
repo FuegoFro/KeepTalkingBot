@@ -71,7 +71,7 @@ class ScreenshotHelper(object):
 
         return modules
 
-    def get_current_module_screenshot(self, allow_bad_lighting=False):
+    def get_current_module_screenshot(self, allow_bad_lighting=False, suppress_debug_copy=False):
         """
         Returns a pair (image, offset) where the image is a subset of the
         screen containing just the module and the offset is the x, y pixel
@@ -93,7 +93,8 @@ class ScreenshotHelper(object):
             y2 = y2 * height / 100
     
             im_to_return = mat[y1:y2, x1:x2]
-            self._record_debug_screenshot(im_to_return)
+            if not suppress_debug_copy:
+                self._record_debug_screenshot(im_to_return)
             return im_to_return, (x1, y1)
     
     def _is_bad_lighting(self, screenshot_mat):
