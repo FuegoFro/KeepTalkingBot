@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from cv_helpers import four_point_transform, get_corners_from_cornerless_rect
+from cv_helpers import four_point_transform, get_corners_from_cornerless_rect, extract_color, get_drawn_contours, show
 
 
 def bounding_box_width_height(contour):
@@ -203,22 +203,20 @@ def get_maze_params(im):
 
 
 def get_button_locations(im):
-    color = 120  # Blue
-    sensitivity = 10
-    lower_bound = np.array([color - sensitivity, 0, 0])
-    upper_bound = np.array([color + sensitivity, 100, 100])
-    hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
-    mono = cv2.inRange(hsv, lower_bound, upper_bound)
-    # show(mono)
+    mono = extract_color(im, 120, (0, 100), (0, 100))
 
     contours, hierarchy = cv2.findContours(mono, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     contours = [cv2.approxPolyDP(contour, 6, True) for contour in contours]
-    contours = sorted(contours, key=cv2.contourArea, reverse=True)[:4]
 
-    # show_contours = np.empty(im.shape)
-    # show_contours[:, :] = [0, 0, 0]
-    # cv2.drawContours(show_contours, contours, -1, (0, 255, 0), 1)
-    # show(show_contours)
+    height, width = im.shape[:2]
+
+    def is_in_middle_quarter_vertically_or_horizontally(contour_to_check):
+        x, y, w, h = cv2.boundingRect(contour_to_check)
+        return (y > height / 4 and y + h < height * 3 / 4) or \
+               (x > width / 4 and x + w < width * 3 / 4)
+
+    contours = [c for c in contours if is_in_middle_quarter_vertically_or_horizontally(c)]
+    contours = sorted(contours, key=cv2.contourArea, reverse=True)[:4]
 
     assert len(contours) == 4, "Expected to find 4 buttons, found %s" % len(contours)
     centers = []

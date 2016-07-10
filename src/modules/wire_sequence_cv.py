@@ -65,7 +65,7 @@ def get_connections(im):
                 # show(combined)
         if current_output is not None:
             print current_output
-            output.append(current_output)
+            output.append(current_output[0])
     return output
 
 

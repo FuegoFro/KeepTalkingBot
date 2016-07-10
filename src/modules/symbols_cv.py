@@ -131,7 +131,8 @@ def extract_all_symbols_for_training():
 
 def test():
     im_to_test = (
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0601.png",
+        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0601.png",
+        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0878.png",
     )
 
     classifier = inflate_classifier(SYMBOLS_CLASSIFIER_DIR)
