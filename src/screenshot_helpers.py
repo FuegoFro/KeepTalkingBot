@@ -1,6 +1,10 @@
+import os
+
 import Quartz
+import cv2
 import numpy as np
 
+from constants import MODULE_SPECIFIC_DIR
 from modules import Type
 from mouse_helpers import mouse_percent, MouseEvent, pre_drag_delay
 
@@ -80,7 +84,37 @@ def get_current_module_screenshot():
     y1 = y1 * height / 100
     y2 = y2 * height / 100
 
-    return mat[y1:y2, x1:x2], (x1, y1)
+    im_to_return = mat[y1:y2, x1:x2]
+
+    record_debug_screenshot(im_to_return)
+
+    return im_to_return, (x1, y1)
+
+
+DEBUG_SCREENSHOT_PATH_TEMPLATE = os.path.join(MODULE_SPECIFIC_DIR, "debug", "{:04d}.png")
+next_debug_screenshot = None
+
+
+def initialize_debug_screenshot():
+    debug_screen_dir = os.path.dirname(DEBUG_SCREENSHOT_PATH_TEMPLATE)
+    if not os.path.exists(debug_screen_dir):
+        os.makedirs(debug_screen_dir)
+    max_debug_num = -1
+    for name in os.listdir(debug_screen_dir):
+        if name == ".DS_Store":
+            continue
+        without_ext, _ = os.path.splitext(name)
+        debug_num = int(without_ext)
+        max_debug_num = max(max_debug_num, debug_num)
+
+    global next_debug_screenshot
+    next_debug_screenshot = max_debug_num + 1
+
+
+def record_debug_screenshot(im):
+    global next_debug_screenshot
+    cv2.imwrite(DEBUG_SCREENSHOT_PATH_TEMPLATE.format(next_debug_screenshot), im)
+    next_debug_screenshot += 1
 
 
 def get_screenshot_matrix():

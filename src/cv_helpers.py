@@ -168,3 +168,53 @@ def extract_color(im, hue, saturation, value):
     mono = cv2.inRange(hsv, lower_bound, upper_bound)
 
     return mono
+
+
+def _handle_points(a, b, most_horizontal, most_vertical):
+    line = (a, b)
+    most_horizontal.append(line)
+    most_horizontal[:] = sorted(most_horizontal, key=aspect_ratio, reverse=True)[:2]
+    most_vertical.append(line)
+    most_vertical[:] = sorted(most_vertical, key=aspect_ratio)[:2]
+
+
+def get_corners_from_cornerless_rect(contour):
+    most_horizontal = []
+    most_vertical = []
+    prev_point = None
+    for (point,) in contour:
+        if prev_point is None:
+            prev_point = point
+            continue
+        _handle_points(prev_point, point, most_horizontal, most_vertical)
+        prev_point = point
+    # Make sure to consider the line between the first and last points.
+    _handle_points(contour[0][0], prev_point, most_horizontal, most_vertical)
+    top, bottom = sorted(most_horizontal, key=lambda (j, k): (j[1] + k[1]) / 2)
+    left, right = sorted(most_vertical, key=lambda (j, k): (j[0] + k[0]) / 2)
+    tl = find_intersection(left, top)
+    tr = find_intersection(top, right)
+    br = find_intersection(right, bottom)
+    bl = find_intersection(bottom, left)
+    points = np.array((tl, tr, br, bl))
+    return points
+
+
+def aspect_ratio(line):
+    (x1, y1), (x2, y2) = line
+    denominator = float(abs(y2 - y1))
+    if denominator == 0:
+        return float("inf")
+    return float(abs(x2 - x1)) / denominator
+
+
+def find_intersection(line_a, line_b):
+    # Math'ed the shit out of this
+    # https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
+    (x1, y1), (x2, y2) = line_a
+    (x3, y3), (x4, y4) = line_b
+    intersect_x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / \
+                  ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
+    intersect_y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / \
+                  ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
+    return intersect_x, intersect_y

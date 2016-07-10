@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from cv_helpers import four_point_transform
+from cv_helpers import four_point_transform, get_corners_from_cornerless_rect
 
 
 def bounding_box_width_height(contour):
@@ -30,34 +30,6 @@ def has_smaller_bounding_box(new, old):
     return new_width <= old_width and new_height <= old_height
 
 
-def aspect_ratio(line):
-    (x1, y1), (x2, y2) = line
-    denominator = float(abs(y2 - y1))
-    if denominator == 0:
-        return float("inf")
-    return float(abs(x2 - x1)) / denominator
-
-
-def find_intersection(line_a, line_b):
-    # Math'ed the shit out of this
-    # https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
-    (x1, y1), (x2, y2) = line_a
-    (x3, y3), (x4, y4) = line_b
-    intersect_x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / \
-                  ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
-    intersect_y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / \
-                  ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
-    return intersect_x, intersect_y
-
-
-def handle_points(a, b, most_horizontal, most_vertical):
-    line = (a, b)
-    most_horizontal.append(line)
-    most_horizontal[:] = sorted(most_horizontal, key=aspect_ratio, reverse=True)[:2]
-    most_vertical.append(line)
-    most_vertical[:] = sorted(most_vertical, key=aspect_ratio)[:2]
-
-
 def extract_maze(im):
     im_gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(im_gray, 127, 255, 0)
@@ -77,25 +49,7 @@ def extract_maze(im):
     #         show_contours[y, x] = [255, 255, 255]
     # show_contours = four_point_transform(show_contours, points)
 
-    most_horizontal = []
-    most_vertical = []
-    prev_point = None
-    for (point,) in best_contour:
-        if prev_point is None:
-            prev_point = point
-            continue
-        handle_points(prev_point, point, most_horizontal, most_vertical)
-        prev_point = point
-    # Make sure to consider the line between the first and last points.
-    handle_points(best_contour[0][0], prev_point, most_horizontal, most_vertical)
-    top, bottom = sorted(most_horizontal, key=lambda (j, k): (j[1] + k[1]) / 2)
-    left, right = sorted(most_vertical, key=lambda (j, k): (j[0] + k[0]) / 2)
-    tl = find_intersection(left, top)
-    tr = find_intersection(top, right)
-    br = find_intersection(right, bottom)
-    bl = find_intersection(bottom, left)
-
-    points = np.array((tl, tr, br, bl))
+    points = get_corners_from_cornerless_rect(best_contour)
     im = four_point_transform(im, points)
 
     # Remove 5% from the edges

@@ -4,19 +4,19 @@ from abc import abstractmethod
 from enum import Enum
 
 Type = Enum('Type', [
-    'blank',
-    'clock',
+    'blank',  #
+    'clock',  #
     'button',
     'complicated_wires',
-    'maze',
-    'memory',
-    'morse_code',
-    'password',
+    'maze',  #
+    'memory',  #
+    'morse_code',  #
+    'password',  #
     'simon_says',
     'simple_wires',
-    'symbols',
-    'whos_on_first',
-    'wire_sequence',
+    'symbols',  #
+    'whos_on_first',  #
+    'wire_sequence',  #
 ])
 
 
@@ -39,6 +39,7 @@ def create_solvers():
     from modules.symbols import SymbolsSolver
     from modules.morse_code import MorseCodeSolver
     from modules.wire_sequence import WireSequenceSolver
+    from modules.memory import MemorySolver
 
     module_solver_classes = (
         MazeSolver,
@@ -47,6 +48,7 @@ def create_solvers():
         SymbolsSolver,
         MorseCodeSolver,
         WireSequenceSolver,
+        MemorySolver,
     )
 
     solvers = {}

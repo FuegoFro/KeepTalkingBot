@@ -8,6 +8,8 @@ import yaml
 
 from constants import MODULE_SPECIFIC_DIR
 from cv_helpers import show, get_classifier_directories, ls
+from modules.memory import BUTTONS_CLASSIFIER_DIR
+from modules.memory_cv import SCREEN_CLASSIFIER_DIR, BUTTONS_CLASSIFIER_DIR
 from modules.password import PASSWORD_LETTER_CLASSIFIER_DIR
 from modules.symbols_cv import SYMBOLS_CLASSIFIER_DIR
 from modules.whos_on_first import WHOS_ON_FIRST_BUTTON_CLASSIFIER_DIR
@@ -15,6 +17,8 @@ from modules.whos_on_first import WHOS_ON_FIRST_BUTTON_CLASSIFIER_DIR
 NUM_MODULE_POSITIONS = 6
 
 MAX_INDEX = 374
+# We'll keep one photo in every group of TEST_DATA_HOLDOUT_FREQUENCY to be test data.
+TEST_DATA_HOLDOUT_FREQUENCY = 10
 MAX_TRAINING_INDEX = MAX_INDEX * 9 / 10
 # MAX_TRAINING_INDEX_STRING = "{0:04d}".format(MAX_TRAINING_INDEX)
 
@@ -112,7 +116,9 @@ def translate_data(labelled_photos_dir, features_dir, svm_data_dir):
             features_path = os.path.join(features_dir, without_extension + ".npy")
             with open(features_path, "r") as f:
                 features = np.load(f)
-            if int(file_name[:4]) <= MAX_TRAINING_INDEX:
+
+            # Determine if testing or training
+            if num_loaded % TEST_DATA_HOLDOUT_FREQUENCY != 0:
                 if training_data is None:
                     training_data = features
                 else:
@@ -298,10 +304,9 @@ def manually_group_images(classifier_dir):
 
 
 def main():
-    # classifier_dir = WHOS_ON_FIRST_BUTTON_CLASSIFIER_DIR
-    classifier_dir = SYMBOLS_CLASSIFIER_DIR
-    # classifier_dir = os.path.join(MODULE_SPECIFIC_DIR, "symbols", "tmp")
-    # cluster_images_pipeline(classifier_dir, 2)
+    classifier_dir = BUTTONS_CLASSIFIER_DIR
+    # classifier_dir = os.path.join(MODULE_SPECIFIC_DIR, "memory", "tmp")
+    # cluster_images_pipeline(classifier_dir, 4)
     train_classifier_pipeline(classifier_dir)
     # manually_group_images(classifier_dir)
     pass
