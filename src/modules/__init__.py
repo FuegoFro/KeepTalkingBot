@@ -28,7 +28,7 @@ class ModuleSolver(object):
         raise ValueError("Unimplemented abstract method")
 
     @abstractmethod
-    def solve(self, image, offset):
+    def solve(self, image, offset, screenshot_helper):
         raise ValueError("Unimplemented abstract method")
 
 

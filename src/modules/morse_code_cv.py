@@ -1,20 +1,23 @@
 import cv2
 import numpy as np
 
-from cv_helpers import get_center_for_contour
+from cv_helpers import get_center_for_contour, show, extract_color
 
 
 def find_arrows(im):
-    color = 120  # Blue
-    sensitivity = 10
-    lower_bound = np.array([color - sensitivity, 50, 50])
-    upper_bound = np.array([color + sensitivity, 100, 100])
-    hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
-    mono = cv2.inRange(hsv, lower_bound, upper_bound)
+    mono = extract_color(im, 120, (50, 100), (50, 100))
 
     contours, hierarchy = cv2.findContours(mono, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     contours = [cv2.approxPolyDP(contour, 6, True) for contour in contours]
-    contours = [c for c in contours if cv2.isContourConvex(c)]
+
+    one_quarter_height = im.shape[0] / 4
+    three_quarter_height = im.shape[0] * 3 / 4
+
+    def is_in_middle_quarter_vertically(contour_to_check):
+        x, y, w, h = cv2.boundingRect(contour_to_check)
+        return y > one_quarter_height and y + h < three_quarter_height
+
+    contours = [c for c in contours if cv2.isContourConvex(c) and is_in_middle_quarter_vertically(c)]
     contours = sorted(contours, key=cv2.contourArea, reverse=True)[:2]
 
     centers = [get_center_for_contour(c) for c in contours]
@@ -47,3 +50,19 @@ def is_light_on(im):
     mono = cv2.inRange(hsv, lower_bound, upper_bound)
 
     return mono.any()
+
+
+def test():
+    images_to_test = (
+        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0530.png",
+    )
+
+    for f in images_to_test:
+        im = cv2.imread(f)
+        right_arrow = find_arrows(im)[1]
+        print right_arrow
+        cv2.circle(im, right_arrow, 10, (255, 0, 0), 10)
+        show(im)
+
+if __name__ == '__main__':
+    test()

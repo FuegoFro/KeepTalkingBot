@@ -7,23 +7,22 @@ from modules import ModuleSolver, Type
 from modules.morse_code_cv import find_arrows, find_tx_button, is_light_on
 from modules.morse_code_solution import MorseCodeState
 from mouse_helpers import click_pixels, MouseButton, post_click_delay
-from screenshot_helpers import get_current_module_screenshot
 
 
 class MorseCodeSolver(ModuleSolver):
     def get_type(self):
         return Type.morse_code
 
-    def solve(self, image, offset):
+    def solve(self, image, offset, screenshot_helper):
         state = MorseCodeState()
         arrow_locations = apply_offset_to_locations(find_arrows(image), offset)
         right_arrow_location = arrow_locations[1]
         tx_button_location = apply_offset_to_single_location(find_tx_button(image), offset)
 
-        last_seen_light_state = is_light_on(get_current_module_screenshot()[0])
+        last_seen_light_state = is_light_on(screenshot_helper.get_current_module_screenshot(allow_bad_lighting=True)[0])
         last_seen_start_time = None
         while not state.is_word_known():
-            current_light_state = is_light_on(get_current_module_screenshot()[0])
+            current_light_state = is_light_on(screenshot_helper.get_current_module_screenshot(allow_bad_lighting=True)[0])
             if current_light_state == last_seen_light_state:
                 # Not sleeping because it takes long enough to grab and process a screenshot.
                 # Busy waiting FTW!

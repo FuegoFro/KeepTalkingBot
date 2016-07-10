@@ -40,7 +40,7 @@ class MazeSolver(ModuleSolver):
     def get_type(self):
         return Type.maze
 
-    def solve(self, image, offset):
+    def solve(self, image, offset, screenshot_helper):
         lookup_key, start_coordinates, end_coordinates = get_maze_params(image)
         top, right, bottom, left = apply_offset_to_locations(get_button_locations(image), offset)
         moves = find_path_through_maze(lookup_key, start_coordinates, end_coordinates)

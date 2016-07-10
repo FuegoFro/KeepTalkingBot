@@ -5,7 +5,6 @@ from modules import ModuleSolver, Type
 from modules.memory_cv import BUTTONS_CLASSIFIER_DIR, SCREEN_CLASSIFIER_DIR, get_screen, get_buttons_and_locations
 from modules.memory_solution import MemoryState
 from mouse_helpers import click_pixels, MouseButton, post_click_delay
-from screenshot_helpers import get_current_module_screenshot
 
 
 class MemorySolver(ModuleSolver):
@@ -17,7 +16,7 @@ class MemorySolver(ModuleSolver):
     def get_type(self):
         return Type.memory
 
-    def solve(self, image, offset):
+    def solve(self, image, offset, screenshot_helper):
         state = MemoryState()
         first_time = True
         while not state.is_done():
@@ -25,7 +24,7 @@ class MemorySolver(ModuleSolver):
                 time.sleep(4)
             first_time = False
 
-            image, offset = get_current_module_screenshot()
+            image, offset = screenshot_helper.get_current_module_screenshot()
             screen = get_screen(image, self.screen_classifier)
             buttons, button_locations = get_buttons_and_locations(image, self.button_classifier)
 

@@ -2,16 +2,13 @@ import os
 
 import cv2
 
-from constants import MODULE_SPECIFIC_DIR, MODULE_CLASSIFIER_DIR
+from constants import MODULE_CLASSIFIER_DIR
 from cv_helpers import show, inflate_classifier, \
     get_classifier_directories, ls, apply_offset_to_locations, apply_offset_to_single_location
 from modules import Type, ModuleSolver
-from modules.password_cv import find_column_buttons, find_submit_button, get_letters
+from modules.password_cv import find_column_buttons, find_submit_button, get_letters, PASSWORD_LETTER_CLASSIFIER_DIR
 from modules.password_solution import get_buttons_to_click_to_solve, UP, DOWN
 from mouse_helpers import click_pixels, MouseButton, post_click_delay
-from screenshot_helpers import get_current_module_screenshot
-
-PASSWORD_LETTER_CLASSIFIER_DIR = os.path.join(MODULE_SPECIFIC_DIR, "password", "letters")
 
 NUM_LETTERS_PER_COLUMN = 6
 
@@ -46,7 +43,7 @@ class PasswordSolver(ModuleSolver):
     def get_type(self):
         return Type.password
 
-    def solve(self, image, offset):
+    def solve(self, image, offset, screenshot_helper):
         top_buttons, bottom_buttons = find_column_buttons(image)
         top_buttons = apply_offset_to_locations(top_buttons, offset)
         bottom_buttons = apply_offset_to_locations(bottom_buttons, offset)
@@ -57,7 +54,7 @@ class PasswordSolver(ModuleSolver):
             for button_x, button_y in bottom_buttons:
                 click_pixels(MouseButton.left, button_x, button_y)
                 post_click_delay()
-            image, offset = get_current_module_screenshot()
+            image, offset = screenshot_helper.get_current_module_screenshot()
             letter_rows.append(get_letters(image, self._letter_classifier))
 
         button_rows = {

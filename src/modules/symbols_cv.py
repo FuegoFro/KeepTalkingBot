@@ -1,9 +1,10 @@
 import os
 
 import cv2
+import numpy as np
 
 from constants import MODULE_CLASSIFIER_DIR, MODULE_SPECIFIC_DIR
-from cv_helpers import get_classifier_directories, ls, inflate_classifier, show
+from cv_helpers import get_classifier_directories, ls, inflate_classifier, show, get_drawn_contours
 
 SYMBOLS_CLASSIFIER_DIR = os.path.join(MODULE_SPECIFIC_DIR, "symbols", "symbol")
 
@@ -46,7 +47,7 @@ def trim_to_contour_bounding_box(im, contour):
 def _process_button_im(im):
     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     _, threshold = cv2.threshold(gray, 100, 255, 0)
-    threshold = 255 - threshold
+    threshold = np.invert(threshold)
 
     height, width = threshold.shape[:2]
     top_margin = height * 15 / 100
@@ -55,8 +56,8 @@ def _process_button_im(im):
     shrunk = threshold[top_margin:-bottom_margin, side_margin:-side_margin]
 
     contours, hierarchy = cv2.findContours(shrunk.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    contours = [c for c in contours if c.shape[0] == 4 and cv2.isContourConvex(c)]
-    contours = sorted(contours, key=cv2.contourArea)
+    # Sort primarily by height, then by area
+    contours = sorted(contours, key=lambda c: (-cv2.boundingRect(c)[1], cv2.contourArea(c)))
     contour = contours[-1]
 
     x, y, w, h = cv2.boundingRect(contour)
@@ -129,10 +130,15 @@ def extract_all_symbols_for_training():
 
 
 def test():
+    im_to_test = (
+        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0601.png",
+    )
+
     classifier = inflate_classifier(SYMBOLS_CLASSIFIER_DIR)
-    for path in _test_symbol_module_images(1):
+    for path in im_to_test:
         im = cv2.imread(path)
         syms, pos = get_symbols_and_positions(im, classifier)
+        print syms
         for p in pos:
             cv2.circle(im, p, 5, (0, 255, 0), 5)
         show(im)

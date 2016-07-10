@@ -112,7 +112,9 @@ class MorseCodeState(object):
 
             # Handle letter or word gap. Both do the letter behavior.
             if self.current_partial_letter is not None:
-                self.letters[self.next_letter_index] = _signals_to_letter(self.current_partial_letter)
+                letter = _signals_to_letter(self.current_partial_letter)
+                print "ADDING LETTER:", letter
+                self.letters[self.next_letter_index] = letter
                 # Assume we'll never wrap around, since we should know what the word is by then.
                 self.next_letter_index += 1
             self.current_partial_letter = []
@@ -151,7 +153,10 @@ class MorseCodeState(object):
             return find_single_matching_word(lambda word: word.startswith(start) and word.endswith(end))
 
     def is_word_known(self):
-        return self._get_word_if_possible() is not None
+        word = self._get_word_if_possible()
+        if word is None and self.next_letter_index >= len(self.letters):
+            assert False, "Can't find word, but have all letters: {}".format(self.letters)
+        return word is not None
 
     def get_num_time_to_press_right_arrow(self):
         word = self._get_word_if_possible()
