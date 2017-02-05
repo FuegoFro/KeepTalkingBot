@@ -6,18 +6,32 @@ from enum import Enum
 Type = Enum('Type', [
     'blank',  #
     'clock',  #
-    'button',
-    'complicated_wires',
+    'button',  # TODO FRK and CAR indicators, clock (batteries)
+    'complicated_wires',  # TODO Last digit of serial even, parallel port (batteries)
     'maze',  #
     'memory',  #
     'morse_code',  #
     'password',  #
-    'simon_says',
-    'simple_wires',
+    'simon_says',  # TODO serial has vowel
+    'simple_wires',  # TODO Last digit of serial number odd
     'symbols',  #
     'whos_on_first',  #
     'wire_sequence',  #
 ])
+
+### Work to do to understand outside:
+# Find and understand serial number
+#   Last digit of serial is odd
+#   Last digit of serial is even
+#   Serial number has vowels
+# Determine number of batteries
+#   More than one battery
+#   More than two batteries
+# Understand indicator label and light (could just special case the two we care about)
+#   Lit indicator with CAR
+#   Lit indicator with FRK
+# Parallel port
+
 
 
 class ModuleSolver(object):

@@ -1,10 +1,18 @@
 import os
 
 import cv2
+import numpy
 import numpy as np
 
 
-def show(image):
+def scale(image, scale_percent):
+    height, width = image.shape[:2]
+    return cv2.resize(image, (int(width * scale_percent), int(height * scale_percent)))
+
+
+def show(image, scale_percent=None):
+    if scale_percent is not None:
+        image = scale(image, scale_percent)
     cv2.namedWindow("test")
     cv2.imshow("test", image)
     return cv2.waitKey()
@@ -12,7 +20,14 @@ def show(image):
 
 def get_drawn_contours(im, contours, draw_to_existing_image=False):
     if draw_to_existing_image:
-        im = im.copy()
+        if len(im.shape) < 3 or im.shape[2] == 1:
+            orig = im
+            im = np.empty((im.shape[0], im.shape[1], 3))
+            im[:, :, 0] = orig
+            im[:, :, 1] = orig
+            im[:, :, 2] = orig
+        else:
+            im = im.copy()
     else:
         im = np.empty((im.shape[0], im.shape[1], 3))
         im[:, :] = [0, 0, 0]
@@ -27,6 +42,10 @@ def get_center_for_contour(contour):
 
 
 def order_points(pts):
+    # Handle the common case of pts being a contour
+    if pts.shape == (4, 1, 2):
+        pts = pts.reshape((4, 2))
+
     # initialize a list of coordinates that will be ordered
     # such that the first entry in the list is the top-left,
     # the second entry is the top-right, the third is the
@@ -218,3 +237,24 @@ def find_intersection(line_a, line_b):
     intersect_y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / \
                   ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
     return intersect_x, intersect_y
+
+
+def point_closest_to(points, x, y):
+    def dist(point):
+        x_offset = point[0][0] - x
+        y_offset = point[0][1] - y
+        sqrt = np.math.sqrt(x_offset ** 2 + y_offset ** 2)
+        return sqrt
+
+    return sorted(points, key=dist)[0]
+
+
+def contour_bounding_box_for_contour(contour):
+    x, y, w, h = cv2.boundingRect(contour)
+    contour = np.array([
+        [x, y],
+        [x + w, y],
+        [x + w, y + h],
+        [x, y + h],
+    ]).reshape((4, 1, 2))
+    return contour

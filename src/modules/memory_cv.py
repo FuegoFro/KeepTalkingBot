@@ -121,15 +121,21 @@ def _extract_pieces():
         # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0121.png",
         # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0122.png",
         # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0123.png",
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0135.png",
+        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0135.png",
+        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0973.png",
+        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0974.png",
+        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0975.png",
+        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0976.png",
+        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0977.png",
+        # "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0978.png",
     )
 
     button_classifier = inflate_classifier(BUTTONS_CLASSIFIER_DIR)
     screen_classifier = inflate_classifier(SCREEN_CLASSIFIER_DIR)
 
     for i, f in enumerate(files):
-        if i >= 4:
-            break
+        # if i >= 4:
+        #     break
         # if i != 3:
         #     continue
         im = cv2.imread(f)

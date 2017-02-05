@@ -4,12 +4,19 @@ import shutil
 import cv2
 import numpy as np
 
-PW_SYMBOL_SOURCE_DIR = "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/labelled_photos/1"
-BUTTON_SIMON_SOURCE_DIR = "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/labelled_photos/9"
-PASSWORD_DIR = "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/labelled_photos/password"
-SYMBOLS_DIR = "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/labelled_photos/symbols"
-BUTTON_DIR = "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/labelled_photos/button"
-SIMON_SAYS_DIR = "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/labelled_photos/simon_says"
+from constants import DATA_DIR
+from cv_helpers import show, ls
+
+PW_SYMBOL_SOURCE_DIR = DATA_DIR + "/labelled_photos/1"
+BUTTON_SIMON_SOURCE_DIR = DATA_DIR + "/labelled_photos/9"
+PASSWORD_DIR = DATA_DIR + "/labelled_photos/password"
+SYMBOLS_DIR = DATA_DIR + "/labelled_photos/symbols"
+BUTTON_DIR = DATA_DIR + "/labelled_photos/button"
+SIMON_SAYS_DIR = DATA_DIR + "/labelled_photos/simon_says"
+
+RAW_ORIG_SCREENSHOTS = DATA_DIR + "/module_classifier/unlabelled"
+EDGE_BATTERY_SCREENSHOTS = DATA_DIR + "/edges/batteries"
+EDGE_SERIAL_SCREENSHOTS = DATA_DIR + "/edges/serial/raw_images"
 
 
 def classify_password_and_symbols():
@@ -66,7 +73,23 @@ def classify_button_and_simon_says():
             dst_dir = BUTTON_DIR
         shutil.copyfile(file_path, os.path.join(dst_dir, file_name))
 
+
+def sort_edges():
+    for path in ls(RAW_ORIG_SCREENSHOTS):
+        sequence_id = int(os.path.basename(path).split("-")[0])
+        if sequence_id <= 27 or sequence_id % 3 != 0:
+            continue
+        print path
+        im = cv2.imread(path)
+        height, width = im.shape[:2]
+        key = show(cv2.resize(im, (width / 4, height / 4)))
+        if key == ord("y"):
+            print "COPYING "
+            shutil.copy(path, os.path.join(EDGE_SERIAL_SCREENSHOTS, os.path.basename(path)))
+
+
 if __name__ == '__main__':
     # classify_password_and_symbols()
     # classify_button_and_simon_says()
+    sort_edges()
     pass
