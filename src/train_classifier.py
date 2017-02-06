@@ -7,7 +7,7 @@ import numpy as np
 import yaml
 
 from cv_helpers import show, get_classifier_directories, ls
-from modules.memory_cv import BUTTONS_CLASSIFIER_DIR
+from edges.serial_number_cv import SERIAL_IS_ZERO_CLASSIFIER_DIR
 from modules.password_cv import PASSWORD_LETTER_CLASSIFIER_DIR
 
 NUM_MODULE_POSITIONS = 6
@@ -300,9 +300,9 @@ def manually_group_images(classifier_dir):
 
 
 def main():
-    classifier_dir = BUTTONS_CLASSIFIER_DIR
+    classifier_dir = SERIAL_IS_ZERO_CLASSIFIER_DIR
     # classifier_dir = os.path.join(MODULE_SPECIFIC_DIR, "memory", "tmp")
-    # cluster_images_pipeline(classifier_dir, 4)
+    # cluster_images_pipeline(classifier_dir, 36)
     train_classifier_pipeline(classifier_dir)
     # manually_group_images(classifier_dir)
     pass
