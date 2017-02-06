@@ -96,7 +96,7 @@ class ScreenshotHelper(object):
             if not suppress_debug_copy:
                 self._record_debug_screenshot(im_to_return)
             return im_to_return, (x1, y1)
-    
+
     def _is_bad_lighting(self, screenshot_mat):
         lighting_check_section = self._get_lighting_check_section(screenshot_mat)
         diff_mat = lighting_check_section - self._lighting_reference

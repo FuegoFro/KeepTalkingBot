@@ -13,7 +13,7 @@ class WireSequenceSolver(ModuleSolver):
     def get_type(self):
         return Type.wire_sequence
 
-    def solve(self, image, offset, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper):
         state = WireSequenceState()
         down_button_x, down_button_y = apply_offset_to_single_location(get_down_button(image), offset)
         for i in xrange(NUM_PANELS):

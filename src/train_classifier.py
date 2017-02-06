@@ -7,7 +7,7 @@ import numpy as np
 import yaml
 
 from cv_helpers import show, get_classifier_directories, ls
-from edges.serial_number_cv import SERIAL_IS_ZERO_CLASSIFIER_DIR
+from sides.serial_number_cv import SERIAL_IS_ZERO_CLASSIFIER_DIR
 from modules.password_cv import PASSWORD_LETTER_CLASSIFIER_DIR
 
 NUM_MODULE_POSITIONS = 6

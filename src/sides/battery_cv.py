@@ -3,10 +3,9 @@ import cv2
 from constants import DATA_DIR
 from cv_helpers import contour_bounding_box_for_contour, extract_color, four_point_transform, ls, \
     show
-from edges import extract_side
 
 
-def find_batteries(im):
+def _find_batteries(im):
     blue = extract_color(im, 216 / 2, (100, 255), (50, 150))
     green = extract_color(im, 105 / 2, (200, 255), (200, 255))
     color = blue + green
@@ -33,7 +32,7 @@ def find_batteries(im):
     return [four_point_transform(im, c) for c in contours]
 
 
-def get_count_for_subsection(battery):
+def _get_count_for_subsection(battery):
     b_height, b_width = battery.shape[:2]
     if b_height > b_width:
         b_height, b_width = b_width, b_height
@@ -50,19 +49,14 @@ def get_count_for_subsection(battery):
         return 1
 
 
-def get_batteries_count_for_side(im, is_bottom):
-    im = extract_side(im, is_bottom)
-    # show(im)
-
-    batteries = find_batteries(im)
-    return sum(get_count_for_subsection(b) for b in batteries)
+def get_batteries_count_for_side(im):
+    batteries = _find_batteries(im)
+    return sum(_get_count_for_subsection(b) for b in batteries)
 
 
 def _test():
-    # templates = [cv2.imread(path) for path in ls(DATA_DIR + "/edges/batteries/templates")]
-
     i = 0
-    for path in ls(DATA_DIR + "edges/batteries/raw_images"):
+    for path in ls(DATA_DIR + "sides/batteries/raw_images"):
         # if "-left.png" not in path:
         # if "0030-edge-left.png" not in path:
         #     continue
@@ -70,8 +64,11 @@ def _test():
         if i > 20:
             break
         # print path
-        print get_batteries_count_for_side(cv2.imread(path), "-bottom" in path)
-        show(cv2.imread(path), .25)
+        im = cv2.imread(path)
+        from sides import _extract_side
+        im = _extract_side(im, "-bottom" in path)
+        print get_batteries_count_for_side(im)
+        show(im, .25)
 
 
 if __name__ == '__main__':

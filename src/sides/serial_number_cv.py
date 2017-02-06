@@ -6,13 +6,12 @@ import numpy as np
 from PIL import Image
 from typing import List, Optional
 
-from constants import DATA_DIR, EDGES_DIR
+from constants import DATA_DIR, SIDES_DIR
 from cv_helpers import contour_bounding_box_for_contour, extract_color, four_point_transform, \
     get_center_for_contour, get_classifier_directories, get_drawn_contours, inflate_classifier, ls, \
     show
-from edges import extract_side
 
-SERIAL_IS_ZERO_CLASSIFIER_DIR = os.path.join(EDGES_DIR, "serial", "is_zero")
+SERIAL_IS_ZERO_CLASSIFIER_DIR = os.path.join(SIDES_DIR, "serial", "is_zero")
 
 LABEL_TO_IS_ZERO = {
     1: False,
@@ -190,7 +189,7 @@ def _test():
     i = 0
     group = 0
     found_in_group = 0
-    for path in ls(DATA_DIR + "edges/serial/raw_images"):
+    for path in ls(DATA_DIR + "sides/serial/raw_images"):
     # for path in ls(DATA_DIR + "module_classifier/unlabelled"):
         # if "-left.png" not in path:
         # if "0036-edge-bottom.png" not in path:
@@ -211,7 +210,8 @@ def _test():
         #     break
         print path
         im = cv2.imread(path)
-        im = extract_side(im, "-bottom" in path)
+        from sides import _extract_side
+        im = _extract_side(im, "-bottom" in path)
 
         text = get_serial_number_from_side(im)
         if text is None:

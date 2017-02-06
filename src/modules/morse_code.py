@@ -13,7 +13,7 @@ class MorseCodeSolver(ModuleSolver):
     def get_type(self):
         return Type.morse_code
 
-    def solve(self, image, offset, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper):
         state = MorseCodeState()
         arrow_locations = apply_offset_to_locations(find_arrows(image), offset)
         right_arrow_location = arrow_locations[1]

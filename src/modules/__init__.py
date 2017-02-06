@@ -6,14 +6,14 @@ from enum import Enum
 Type = Enum('Type', [
     'blank',  #
     'clock',  #
-    'button',  # TODO FRK and CAR indicators, clock (batteries)
-    'complicated_wires',  # TODO Last digit of serial even, parallel port (batteries)
+    'button',  # TODO FRK and CAR indicators, clock. (batteries)
+    'complicated_wires',  # TODO parallel port, (last digit of serial even, batteries)
     'maze',  #
     'memory',  #
     'morse_code',  #
     'password',  #
-    'simon_says',  # TODO serial has vowel
-    'simple_wires',  # TODO Last digit of serial number odd
+    'simon_says',  # TODO (serial has vowel)
+    'simple_wires',  # TODO (last digit of serial number odd)
     'symbols',  #
     'whos_on_first',  #
     'wire_sequence',  #
@@ -42,7 +42,7 @@ class ModuleSolver(object):
         raise ValueError("Unimplemented abstract method")
 
     @abstractmethod
-    def solve(self, image, offset, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper):
         raise ValueError("Unimplemented abstract method")
 
 

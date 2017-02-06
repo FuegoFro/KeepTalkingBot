@@ -60,7 +60,7 @@ class WhosOnFirstSolver(ModuleSolver):
     def get_type(self):
         return Type.whos_on_first
 
-    def solve(self, image, offset, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper):
         first_time = True
         for _ in range(NUM_TIMES_TO_SOLVE):
             if not first_time:

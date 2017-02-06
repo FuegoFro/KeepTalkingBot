@@ -16,7 +16,7 @@ class MemorySolver(ModuleSolver):
     def get_type(self):
         return Type.memory
 
-    def solve(self, image, offset, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper):
         state = MemoryState()
         first_time = True
         while not state.is_done():

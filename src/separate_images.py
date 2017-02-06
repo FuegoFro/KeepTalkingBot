@@ -15,8 +15,8 @@ BUTTON_DIR = DATA_DIR + "/labelled_photos/button"
 SIMON_SAYS_DIR = DATA_DIR + "/labelled_photos/simon_says"
 
 RAW_ORIG_SCREENSHOTS = DATA_DIR + "/module_classifier/unlabelled"
-EDGE_BATTERY_SCREENSHOTS = DATA_DIR + "/edges/batteries"
-EDGE_SERIAL_SCREENSHOTS = DATA_DIR + "/edges/serial/raw_images"
+EDGE_BATTERY_SCREENSHOTS = DATA_DIR + "/sides/batteries"
+EDGE_SERIAL_SCREENSHOTS = DATA_DIR + "/sides/serial/raw_images"
 
 
 def classify_password_and_symbols():
@@ -74,7 +74,7 @@ def classify_button_and_simon_says():
         shutil.copyfile(file_path, os.path.join(dst_dir, file_name))
 
 
-def sort_edges():
+def sort_sides():
     for path in ls(RAW_ORIG_SCREENSHOTS):
         sequence_id = int(os.path.basename(path).split("-")[0])
         if sequence_id <= 27 or sequence_id % 3 != 0:
@@ -91,5 +91,5 @@ def sort_edges():
 if __name__ == '__main__':
     # classify_password_and_symbols()
     # classify_button_and_simon_says()
-    sort_edges()
+    sort_sides()
     pass

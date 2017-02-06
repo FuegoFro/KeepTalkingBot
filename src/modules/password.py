@@ -43,7 +43,7 @@ class PasswordSolver(ModuleSolver):
     def get_type(self):
         return Type.password
 
-    def solve(self, image, offset, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper):
         top_buttons, bottom_buttons = find_column_buttons(image)
         top_buttons = apply_offset_to_locations(top_buttons, offset)
         bottom_buttons = apply_offset_to_locations(bottom_buttons, offset)
