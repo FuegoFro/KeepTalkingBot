@@ -1,7 +1,6 @@
 import os
 
 import cv2
-import numpy
 import numpy as np
 
 
@@ -159,10 +158,16 @@ def get_classifier_directories(root_dir):
     return (vocab_path,) + dirs
 
 
-def ls(path):
+def ls(path, limit=None, name_filter=None):
+    i = 0
     for name in os.listdir(path):
         if name == ".DS_Store":
             continue
+        if name_filter is not None and name_filter not in name:
+            continue
+        i += 1
+        if limit is not None and i > limit:
+            break
         yield os.path.join(path, name)
 
 
@@ -181,6 +186,18 @@ def extract_color(im, hue, saturation, value):
     if isinstance(hue, int):
         sensitivity = 10
         hue = (hue - sensitivity, hue + sensitivity)
+        # Handle hue's near the boundary
+        split_hue_pairs = None
+        if hue[0] < 0:
+            split_hue_pairs = ((hue[0] % 180, 180), (0, hue[1]))
+        elif hue[1] > 180:
+            split_hue_pairs = ((hue[0], 180), (0, hue[1] % 180))
+
+        if split_hue_pairs is not None:
+            a_hue, b_hue = split_hue_pairs
+            return extract_color(im, a_hue, saturation, value) + \
+                extract_color(im, b_hue, saturation, value)
+
     lower_bound = np.array([hue[0], saturation[0], value[0]])
     upper_bound = np.array([hue[1], saturation[1], value[1]])
     hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
