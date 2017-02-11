@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 
 from constants import MODULE_CLASSIFIER_DIR, MODULE_SPECIFIC_DIR
-from cv_helpers import get_center_for_contour, four_point_transform, get_classifier_directories, inflate_classifier, \
-    show
+from cv_helpers import four_point_transform, get_center_for_contour, get_classifier_directories, \
+    inflate_classifier, ls_debug, show
 
 PASSWORD_LETTER_CLASSIFIER_DIR = os.path.join(MODULE_SPECIFIC_DIR, "password", "letters")
 
@@ -158,18 +158,11 @@ def extract_all_letter_images_for_training():
 
 
 def test():
-    images_to_test = (
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0275.png",
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0276.png",
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0277.png",
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0278.png",
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0279.png",
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0280.png",
-    )
-
+    to_test = (275, 280)
+    to_test = (1243, 1248)
     letter_classifier = inflate_classifier(PASSWORD_LETTER_CLASSIFIER_DIR)
 
-    for f in images_to_test:
+    for f in ls_debug(*to_test):
         im = cv2.imread(f)
         print get_letters(im, letter_classifier)
         show(im)

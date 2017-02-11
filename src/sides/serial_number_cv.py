@@ -33,7 +33,7 @@ def _get_cleaned_up_text_subsection(im):
     red1 = extract_color(im, (0, 6), (200, 255), (100, 150))
     red2 = extract_color(im, (176, 180), (200, 255), (100, 150))
     red = red1 + red2
-    color = extract_color(im, 45 / 2, (20, 50), (220, 255))
+    color = extract_color(im, 45 / 2, (20, 50), (200, 255))
     # show(red, .25)
     # show(yellow, .25)
     # im = scale(im, .25)
@@ -41,12 +41,14 @@ def _get_cleaned_up_text_subsection(im):
     red_contour = _get_box_for_largest_rect_contour(red)
     text_contour = _get_box_for_largest_rect_contour(color)
     if red_contour is None or text_contour is None:
-        if red_contour is not None:
-            print "RED"
-            show(get_drawn_contours(red, [red_contour], True))
-        if text_contour is not None:
-            print "TEXT"
-            show(get_drawn_contours(color, [text_contour], True))
+        # if red_contour is not None:
+        #     print "RED"
+        #     show(get_drawn_contours(red, [red_contour], True))
+        #     show(color)
+        # if text_contour is not None:
+        #     print "TEXT"
+        #     show(get_drawn_contours(color, [text_contour], True))
+        #     show(red)
 
         assert red_contour is None and text_contour is None, \
             "Error parsing serial number, didn't find one of the text or its label."
@@ -88,6 +90,7 @@ def _get_cleaned_up_text_subsection(im):
     # show(text_threshold)
     height, width = text_threshold.shape[:2]
     text_threshold[:height / 10, :] = 0
+    text_threshold[9 * height / 10:, :] = 0
     return text_threshold
 
 
@@ -189,8 +192,8 @@ def _test():
     i = 0
     group = 0
     found_in_group = 0
-    for path in ls(DATA_DIR + "sides/serial/raw_images"):
     # for path in ls(DATA_DIR + "module_classifier/unlabelled"):
+    for path in ls(DATA_DIR + "module_specific_data/debug/", 1, "1206.png"):
         # if "-left.png" not in path:
         # if "0036-edge-bottom.png" not in path:
         #     continue

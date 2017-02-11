@@ -52,7 +52,8 @@ class WhosOnFirstSolver(ModuleSolver):
     def __init__(self):
         super(WhosOnFirstSolver, self).__init__()
         self._button_classifier = inflate_classifier(WHOS_ON_FIRST_BUTTON_CLASSIFIER_DIR)
-        self._tesseract = tesserpy.Tesseract("/usr/local/Cellar/tesseract/3.04.01_1/share/tessdata/", language="eng")
+        self._tesseract = tesserpy.Tesseract(
+            "/usr/local/Cellar/tesseract/3.04.01_2/share/tessdata/", language="eng")
         self._tesseract.tessedit_char_whitelist = "ABCDEFGHIJKLMNOPQRSTUVWXYZ' "
         self._tesseract.tessedit_pageseg_mode = tesserpy.PSM_SINGLE_LINE
         self._debug_image = 0

@@ -7,7 +7,7 @@ import time
 
 from constants import MODULE_SPECIFIC_DIR
 from modules import Type
-from mouse_helpers import mouse_percent, MouseEvent, pre_drag_delay
+from mouse_helpers import mouse_percent, MouseEvent, pre_drag_delay, open_bomb, close_once
 
 FULL_POSITIONS = (
     (27, 43, 26, 51),  # top-left
@@ -42,8 +42,10 @@ DEBUG_SCREENSHOT_PATH_TEMPLATE = os.path.join(MODULE_SPECIFIC_DIR, "debug", "{:0
 class ScreenshotHelper(object):
     def __init__(self):
         super(ScreenshotHelper, self).__init__()
+        open_bomb()
         self._initialize_lighting_reference()
         self._initialize_debug_screenshot()
+        close_once()
 
     @staticmethod
     def _classify_module(classifier, module_image):
@@ -97,6 +99,22 @@ class ScreenshotHelper(object):
                 self._record_debug_screenshot(im_to_return)
             return im_to_return, (x1, y1)
 
+    def get_full_screenshot(self, suppress_mouse_movement):
+        """
+        Returns an image of the entire screen, handling bad lighting and saving a debug copy. If
+        mouse movement is suppressed, bad lighting handling is turned off.
+        """
+        while True:
+            mat = self._get_screenshot_matrix(suppress_mouse_movement)
+            # We can't control where the mouse is, which can mess up the bad lighting handling.
+            if not suppress_mouse_movement and self._is_bad_lighting(mat):
+                # Wait a bit and try again
+                time.sleep(.2)
+                continue
+
+            self._record_debug_screenshot(mat)
+            return mat
+
     def _is_bad_lighting(self, screenshot_mat):
         lighting_check_section = self._get_lighting_check_section(screenshot_mat)
         diff_mat = lighting_check_section - self._lighting_reference
@@ -135,9 +153,10 @@ class ScreenshotHelper(object):
         self.next_debug_screenshot += 1
 
     @staticmethod
-    def _get_screenshot_matrix():
-        mouse_percent(MouseEvent.mouse_moved, 5, 95)
-        pre_drag_delay()
+    def _get_screenshot_matrix(suppress_mouse_movement=False):
+        if not suppress_mouse_movement:
+            mouse_percent(MouseEvent.mouse_moved, 5, 95)
+            pre_drag_delay()
 
         image = Quartz.CGDisplayCreateImage(Quartz.CGMainDisplayID())
         cols = Quartz.CGImageGetWidth(image)

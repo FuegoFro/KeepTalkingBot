@@ -54,6 +54,7 @@ def create_solvers():
     from modules.morse_code import MorseCodeSolver
     from modules.wire_sequence import WireSequenceSolver
     from modules.memory import MemorySolver
+    from modules.simple_wires import SimpleWiresSolver
 
     module_solver_classes = (
         MazeSolver,
@@ -63,6 +64,7 @@ def create_solvers():
         MorseCodeSolver,
         WireSequenceSolver,
         MemorySolver,
+        SimpleWiresSolver,
     )
 
     solvers = {}

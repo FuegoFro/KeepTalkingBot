@@ -1,8 +1,9 @@
 import os
 
 import cv2
-import numpy
 import numpy as np
+
+from constants import DATA_DIR
 
 
 def scale(image, scale_percent):
@@ -159,10 +160,16 @@ def get_classifier_directories(root_dir):
     return (vocab_path,) + dirs
 
 
-def ls(path):
+def ls(path, limit=None, name_filter=None):
+    i = 0
     for name in os.listdir(path):
         if name == ".DS_Store":
             continue
+        if name_filter is not None and name_filter not in name:
+            continue
+        i += 1
+        if limit is not None and i > limit:
+            break
         yield os.path.join(path, name)
 
 
@@ -181,6 +188,18 @@ def extract_color(im, hue, saturation, value):
     if isinstance(hue, int):
         sensitivity = 10
         hue = (hue - sensitivity, hue + sensitivity)
+        # Handle hue's near the boundary
+        split_hue_pairs = None
+        if hue[0] < 0:
+            split_hue_pairs = ((hue[0] % 180, 180), (0, hue[1]))
+        elif hue[1] > 180:
+            split_hue_pairs = ((hue[0], 180), (0, hue[1] % 180))
+
+        if split_hue_pairs is not None:
+            a_hue, b_hue = split_hue_pairs
+            return extract_color(im, a_hue, saturation, value) + \
+                extract_color(im, b_hue, saturation, value)
+
     lower_bound = np.array([hue[0], saturation[0], value[0]])
     upper_bound = np.array([hue[1], saturation[1], value[1]])
     hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
@@ -258,3 +277,32 @@ def contour_bounding_box_for_contour(contour):
         [x, y + h],
     ]).reshape((4, 1, 2))
     return contour
+
+
+def get_dimens(im):
+    h, w = im.shape[:2]
+    return w, h
+
+
+def get_contours(im):
+    return cv2.findContours(im.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
+
+
+def get_width(im):
+    return get_dimens(im)[0]
+
+
+def get_height(im):
+    return get_dimens(im)[1]
+
+
+def ls_debug(start_num, end_num):
+    for path in ls(DATA_DIR + "module_specific_data/debug/"):
+        name, _ = os.path.splitext(os.path.basename(path))
+        try:
+            num = int(name)
+        except ValueError:
+            continue
+
+        if start_num <= num <= end_num:
+            yield path

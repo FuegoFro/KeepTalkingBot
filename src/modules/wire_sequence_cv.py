@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from cv_helpers import extract_color, show, get_center_for_contour
+from cv_helpers import extract_color, get_center_for_contour, ls_debug, show
 from modules.wire_sequence_common import Color, Destination
 
 ORDERED_DESTINATIONS = list(Destination)
@@ -24,8 +24,8 @@ def get_connections(im):
     mask = blue.copy()
     height, width = mask.shape
 
-    rows = (0.38, 0.48, 0.58)
-    cols = (0.42, 0.61)
+    rows = (0.33, 0.48, 0.62)
+    cols = (0.30, 0.55)
     row_pxs = [int(row_percent * height) for row_percent in rows]
     start_col_px, end_col_px = [int(col_percent * width) for col_percent in cols]
 
@@ -81,16 +81,8 @@ def get_down_button(im):
 
 
 def test():
-    to_try = (
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0089.png",
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0090.png",
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0091.png",
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0092.png",
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0105.png",
-        "/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/debug/0856.png",
-    )
-
-    for path in to_try:
+    to_test = (1254, 1255)
+    for path in ls_debug(*to_test):
         print "---------- NEXT IMAGE ------------"
         im = cv2.imread(path)
 
