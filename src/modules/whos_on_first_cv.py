@@ -2,6 +2,7 @@ import os
 
 import cv2
 import numpy as np
+from PIL import Image
 
 from constants import MODULE_SPECIFIC_DIR
 from cv_helpers import four_point_transform, get_center_for_contour
@@ -49,7 +50,7 @@ def _is_valid_screen_contour(im, contour):
 
 
 def get_screen_content(im, tesseract, debug_idx):
-    orig_im = im
+    # orig_im = im
     color = 110
     sensitivity = 20
     lower_bound = np.array([color - sensitivity, 0, 0])
@@ -76,8 +77,8 @@ def get_screen_content(im, tesseract, debug_idx):
     if im.sum() == 0:
         screen_text = ""
     else:
-        tesseract.set_image(im)
-        screen_text = tesseract.get_utf8_text().upper().strip().replace(" ", "")
+        tesseract.SetImage(Image.fromarray(im))
+        screen_text = tesseract.GetUTF8Text().upper().strip().replace(" ", "")
 
     # print screen_text
     # show(get_drawn_contours(orig_im, [contour], True))
@@ -85,10 +86,11 @@ def get_screen_content(im, tesseract, debug_idx):
     return screen_text
 
 
-def get_buttons_and_positions(im, classifier, tesseract, debug_idx):
+def get_buttons_and_positions(im, classifier, debug_idx):
     """
-    Returns (buttons, positions) where buttons contains the text of the buttons in column major order and
-    positions contains the (x, y) location of the button at the corresponding index in buttons.
+    Returns (buttons, positions) where buttons contains the text of the buttons in column major
+    order and positions contains the (x, y) location of the button at the corresponding index in
+    buttons.
     """
     color = 18
     sensitivity = 10

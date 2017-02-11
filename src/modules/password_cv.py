@@ -158,8 +158,9 @@ def extract_all_letter_images_for_training():
 
 
 def test():
-    to_test = (275, 280)
-    to_test = (1243, 1248)
+    # to_test = (275, 280)
+    # to_test = (1243, 1248)
+    to_test = (1331, 1336)
     letter_classifier = inflate_classifier(PASSWORD_LETTER_CLASSIFIER_DIR)
 
     for f in ls_debug(*to_test):

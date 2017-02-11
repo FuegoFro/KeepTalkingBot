@@ -6,10 +6,9 @@ import numpy as np
 from PIL import Image
 from typing import List, Optional
 
-from constants import DATA_DIR, SIDES_DIR
+from constants import SIDES_DIR
 from cv_helpers import contour_bounding_box_for_contour, extract_color, four_point_transform, \
-    get_center_for_contour, get_classifier_directories, get_drawn_contours, inflate_classifier, ls, \
-    show
+    get_center_for_contour, get_classifier_directories, inflate_classifier, ls_debug, show
 
 SERIAL_IS_ZERO_CLASSIFIER_DIR = os.path.join(SIDES_DIR, "serial", "is_zero")
 
@@ -50,8 +49,11 @@ def _get_cleaned_up_text_subsection(im):
         #     show(get_drawn_contours(color, [text_contour], True))
         #     show(red)
 
-        assert red_contour is None and text_contour is None, \
-            "Error parsing serial number, didn't find one of the text or its label."
+        # if not (red_contour is None and text_contour is None):
+            # show(red)
+            # show(color)
+        # assert red_contour is None and text_contour is None, \
+        #     "Error parsing serial number, didn't find one of the text or its label."
         return None
     
     red_center = get_center_for_contour(red_contour)
@@ -193,7 +195,7 @@ def _test():
     group = 0
     found_in_group = 0
     # for path in ls(DATA_DIR + "module_classifier/unlabelled"):
-    for path in ls(DATA_DIR + "module_specific_data/debug/", 1, "1206.png"):
+    for path in ls_debug(1294, 1297):
         # if "-left.png" not in path:
         # if "0036-edge-bottom.png" not in path:
         #     continue

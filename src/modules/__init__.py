@@ -13,7 +13,7 @@ Type = Enum('Type', [
     'morse_code',  #
     'password',  #
     'simon_says',  # TODO (serial has vowel)
-    'simple_wires',  # TODO (last digit of serial number odd)
+    'simple_wires',  #
     'symbols',  #
     'whos_on_first',  #
     'wire_sequence',  #

@@ -1,15 +1,15 @@
 import os
-import tesserpy
 import time
+from tesserocr import PSM, PyTessBaseAPI
 
 import cv2
 
 from constants import MODULE_CLASSIFIER_DIR, MODULE_SPECIFIC_DIR
-from cv_helpers import get_classifier_directories, ls, inflate_classifier, apply_offset_to_locations
+from cv_helpers import apply_offset_to_locations, get_classifier_directories, inflate_classifier, ls
 from modules import ModuleSolver, Type
 from modules.whos_on_first_cv import get_buttons_and_positions, get_screen_content
 from modules.whos_on_first_solution import button_to_press
-from mouse_helpers import click_pixels, MouseButton, post_click_delay
+from mouse_helpers import MouseButton, click_pixels, post_click_delay
 
 NUM_TIMES_TO_SOLVE = 3
 
@@ -17,9 +17,7 @@ WHOS_ON_FIRST_BUTTON_CLASSIFIER_DIR = os.path.join(MODULE_SPECIFIC_DIR, "whos_on
 
 
 def test():
-    tesseract = tesserpy.Tesseract("/usr/local/Cellar/tesseract/3.04.01_1/share/tessdata/", language="eng")
-    tesseract.tessedit_char_whitelist = "ABCDEFGHIJKLMNOPQRSTUVWXYZ' "
-    tesseract.tessedit_pageseg_mode = tesserpy.PSM_SINGLE_LINE
+    tesseract = _get_tesseract()
 
     classifier = inflate_classifier(WHOS_ON_FIRST_BUTTON_CLASSIFIER_DIR)
 
@@ -48,14 +46,20 @@ def test():
         # print "--------------------"
 
 
+def _get_tesseract():
+    tesseract = PyTessBaseAPI()
+    tesseract.SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ' ")
+    tesseract.SetPageSegMode(PSM.SINGLE_LINE)
+    return tesseract
+
+
 class WhosOnFirstSolver(ModuleSolver):
     def __init__(self):
         super(WhosOnFirstSolver, self).__init__()
         self._button_classifier = inflate_classifier(WHOS_ON_FIRST_BUTTON_CLASSIFIER_DIR)
-        self._tesseract = tesserpy.Tesseract(
-            "/usr/local/Cellar/tesseract/3.04.01_2/share/tessdata/", language="eng")
-        self._tesseract.tessedit_char_whitelist = "ABCDEFGHIJKLMNOPQRSTUVWXYZ' "
-        self._tesseract.tessedit_pageseg_mode = tesserpy.PSM_SINGLE_LINE
+
+        self._tesseract = _get_tesseract()
+
         self._debug_image = 0
 
     def get_type(self):
@@ -75,7 +79,8 @@ class WhosOnFirstSolver(ModuleSolver):
             cv2.imwrite(os.path.join(MODULE_SPECIFIC_DIR, "whos_on_first", "in_game_%i.png" % self._debug_image), image)
 
             screen_text = get_screen_content(image, self._tesseract, self._debug_image)
-            buttons, positions = get_buttons_and_positions(image, self._button_classifier, self._tesseract, self._debug_image)
+            buttons, positions = get_buttons_and_positions(
+                image, self._button_classifier, self._debug_image)
             print screen_text
             print buttons
             print positions
