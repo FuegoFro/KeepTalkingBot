@@ -33,7 +33,6 @@ Type = Enum('Type', [
 # Parallel port
 
 
-
 class ModuleSolver(object):
     __metaclass__ = abc.ABCMeta
 
@@ -55,6 +54,7 @@ def create_solvers():
     from modules.wire_sequence import WireSequenceSolver
     from modules.memory import MemorySolver
     from modules.simple_wires import SimpleWiresSolver
+    from modules.simon_says import SimonSaysSolver
 
     module_solver_classes = (
         MazeSolver,
@@ -65,6 +65,7 @@ def create_solvers():
         WireSequenceSolver,
         MemorySolver,
         SimpleWiresSolver,
+        SimonSaysSolver,
     )
 
     solvers = {}

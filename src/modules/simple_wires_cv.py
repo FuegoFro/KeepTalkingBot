@@ -4,7 +4,7 @@ from modules.simple_wires_common import WireColor
 
 def _get_wire_positions(im, wire_color, hue, saturation=(150, 255), value=(100, 255)):
     color = extract_color(im, hue, saturation, value)
-    contours = get_contours(color)
+    contours = get_contours(color, close_and_open=False)
     return [(get_center_for_contour(c), wire_color) for c in contours]
 
 

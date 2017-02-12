@@ -284,8 +284,14 @@ def get_dimens(im):
     return w, h
 
 
-def get_contours(im):
-    return cv2.findContours(im.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
+def get_contours(im, close_and_open=True):
+    im = im.copy()
+    if close_and_open:
+        structuring_element1 = cv2.getStructuringElement(cv2.MORPH_RECT, (15, 15))
+        structuring_element2 = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+        im = cv2.morphologyEx(im, cv2.MORPH_CLOSE, structuring_element1)
+        im = cv2.morphologyEx(im, cv2.MORPH_OPEN, structuring_element2)
+    return cv2.findContours(im, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
 
 
 def get_width(im):
@@ -306,3 +312,12 @@ def ls_debug(start_num, end_num):
 
         if start_num <= num <= end_num:
             yield path
+
+
+def get_subset(im, x_percents, y_percents):
+    w, h = get_dimens(im)
+    left_margin, right_margin, top_margin, bottom_margin =[
+        int((percent * full)/100.0) for percent, full in zip(x_percents + y_percents, (w, w, h, h))
+    ]
+
+    return im[top_margin:bottom_margin, left_margin:right_margin]

@@ -8,7 +8,8 @@ from typing import List, Optional
 
 from constants import SIDES_DIR
 from cv_helpers import contour_bounding_box_for_contour, extract_color, four_point_transform, \
-    get_center_for_contour, get_classifier_directories, inflate_classifier, ls_debug, show
+    get_center_for_contour, get_classifier_directories, inflate_classifier, ls_debug, show, \
+    get_contours
 
 SERIAL_IS_ZERO_CLASSIFIER_DIR = os.path.join(SIDES_DIR, "serial", "is_zero")
 
@@ -167,12 +168,7 @@ def _get_text_from_letters(letters):
 
 def _get_box_for_largest_rect_contour(color):
     # type: (np.array) -> Optional[np.array]
-    structuring_element1 = cv2.getStructuringElement(cv2.MORPH_RECT, (15, 15))
-    structuring_element2 = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
-    color = cv2.morphologyEx(color, cv2.MORPH_CLOSE, structuring_element1)
-    color = cv2.morphologyEx(color, cv2.MORPH_OPEN, structuring_element2)
-
-    contours, _ = cv2.findContours(color.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours = get_contours(color)
     # print [0.05 * cv2.arcLength(c, True) for c in contours]
     # show(get_drawn_contours(color, contours, True), .25)
     contours = [cv2.approxPolyDP(c, 0.05 * cv2.arcLength(c, True), True) for c in contours]
