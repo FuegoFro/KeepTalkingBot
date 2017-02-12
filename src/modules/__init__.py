@@ -7,30 +7,22 @@ Type = Enum('Type', [
     'blank',  #
     'clock',  #
     'button',  # TODO FRK and CAR indicators, clock. (batteries)
-    'complicated_wires',  # TODO parallel port, (last digit of serial even, batteries)
+    'complicated_wires',  # TODO (parallel port, last digit of serial even, batteries)
     'maze',  #
     'memory',  #
     'morse_code',  #
     'password',  #
-    'simon_says',  # TODO (serial has vowel)
+    'simon_says',  #
     'simple_wires',  #
     'symbols',  #
     'whos_on_first',  #
     'wire_sequence',  #
 ])
 
-### Work to do to understand outside:
-# Find and understand serial number
-#   Last digit of serial is odd
-#   Last digit of serial is even
-#   Serial number has vowels
-# Determine number of batteries
-#   More than one battery
-#   More than two batteries
+# -- Work to do to understand outside:
 # Understand indicator label and light (could just special case the two we care about)
 #   Lit indicator with CAR
 #   Lit indicator with FRK
-# Parallel port
 
 
 class ModuleSolver(object):
