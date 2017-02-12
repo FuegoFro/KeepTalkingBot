@@ -316,7 +316,7 @@ def ls_debug(start_num, end_num):
 
 def get_subset(im, x_percents, y_percents):
     w, h = get_dimens(im)
-    left_margin, right_margin, top_margin, bottom_margin =[
+    left_margin, right_margin, top_margin, bottom_margin = [
         int((percent * full)/100.0) for percent, full in zip(x_percents + y_percents, (w, w, h, h))
     ]
 

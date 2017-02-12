@@ -23,7 +23,7 @@ def get_sides_info(screenshot_helper):
     sides.append(_extract_side(bottom_side, True))
 
     num_batteries = sum(get_batteries_count_for_side(s) for s in sides)
-    has_parallel_port = any(get_has_parallel_port_for_side(side))
+    has_parallel_port = any(get_has_parallel_port_for_side(s) for s in sides)
     serial_number = None
     for side in sides:
         parsed_number = get_serial_number_from_side(side)

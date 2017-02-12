@@ -2,7 +2,6 @@ import cv2
 
 from constants import DATA_DIR
 from cv_helpers import extract_color, get_contours, get_dimens, ls
-from sides import _extract_side
 
 
 _WIDTH_THRESHOLD = 0.1
@@ -26,6 +25,7 @@ def get_has_parallel_port_for_side(side):
 
 
 def _test():
+    from sides import _extract_side
     for path in ls(DATA_DIR + "sides/batteries/raw_images"):
         im = cv2.imread(path)
         is_bottom = any(n in path for n in ("1307", "1260", "1232"))

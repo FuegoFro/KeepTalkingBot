@@ -7,7 +7,7 @@ Type = Enum('Type', [
     'blank',  #
     'clock',  #
     'button',  # TODO FRK and CAR indicators, clock. (batteries)
-    'complicated_wires',  # TODO (parallel port, last digit of serial even, batteries)
+    'complicated_wires',  #
     'maze',  #
     'memory',  #
     'morse_code',  #
@@ -47,6 +47,7 @@ def create_solvers():
     from modules.memory import MemorySolver
     from modules.simple_wires import SimpleWiresSolver
     from modules.simon_says import SimonSaysSolver
+    from modules.complicated_wires import ComplicatedWiresSolver
 
     module_solver_classes = (
         MazeSolver,
@@ -58,6 +59,7 @@ def create_solvers():
         MemorySolver,
         SimpleWiresSolver,
         SimonSaysSolver,
+        ComplicatedWiresSolver,
     )
 
     solvers = {}
