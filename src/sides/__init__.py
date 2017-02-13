@@ -1,20 +1,24 @@
+import itertools
+
 import cv2
 import numpy as np
 
-from cv_helpers import extract_color, point_closest_to, four_point_transform
+from cv_helpers import extract_color, four_point_transform, point_closest_to
+from mouse_helpers import MouseEvent, close_once, mouse_percent, open_bomb, post_drag_delay, \
+    pre_drag_delay
 from sides.battery_cv import get_batteries_count_for_side
+from sides.indicator_cv import get_indicator_lights_and_text
 from sides.parallel_port_cv import get_has_parallel_port_for_side
 from sides.serial_number_cv import get_serial_number_from_side
-from mouse_helpers import mouse_percent, MouseEvent, pre_drag_delay, post_drag_delay, close_once
-from mouse_helpers import open_bomb
 
 
 class SidesInfo(object):
-    def __init__(self, num_batteries, serial_number, has_parallel_port):
+    def __init__(self, num_batteries, serial_number, has_parallel_port, indicators):
         super(SidesInfo, self).__init__()
         self.num_batteries = num_batteries
         self.serial_number = serial_number
         self.has_parallel_port = has_parallel_port
+        self.indicators = indicators
 
 
 def get_sides_info(screenshot_helper):
@@ -32,7 +36,11 @@ def get_sides_info(screenshot_helper):
             serial_number = parsed_number
     assert serial_number is not None, "Did not find a serial number"
 
-    return SidesInfo(num_batteries, serial_number, has_parallel_port)
+    flat_map = itertools.chain.from_iterable
+    indicators = list(flat_map(get_indicator_lights_and_text(s) for s in sides))
+    print indicators
+
+    return SidesInfo(num_batteries, serial_number, has_parallel_port, indicators)
 
 
 def _get_sides_screenshots(screenshot_helper):

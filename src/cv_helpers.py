@@ -321,3 +321,21 @@ def get_subset(im, x_percents, y_percents):
     ]
 
     return im[top_margin:bottom_margin, left_margin:right_margin]
+
+
+def rotate_image_180(image):
+    image = cv2.flip(image, 0)
+    image = cv2.flip(image, 1)
+    return image
+
+
+def rotate_image_clockwise(image):
+    image = cv2.transpose(image)
+    image = cv2.flip(image, 1)
+    return image
+
+
+def rotate_image_counter_clockwise(image):
+    image = cv2.transpose(image)
+    image = cv2.flip(image, 0)
+    return image

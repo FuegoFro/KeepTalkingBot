@@ -7,9 +7,10 @@ from PIL import Image
 from typing import List, Optional
 
 from constants import SIDES_DIR
-from cv_helpers import contour_bounding_box_for_contour, extract_color, four_point_transform, \
-    get_center_for_contour, get_classifier_directories, inflate_classifier, ls_debug, show, \
-    get_contours
+from cv_helpers import contour_bounding_box_for_contour, extract_color, four_point_transform,\
+    get_center_for_contour, get_classifier_directories, get_contours, inflate_classifier,\
+    ls_debug, rotate_image_180, rotate_image_clockwise, rotate_image_counter_clockwise,\
+    show
 
 SERIAL_IS_ZERO_CLASSIFIER_DIR = os.path.join(SIDES_DIR, "serial", "is_zero")
 
@@ -17,6 +18,7 @@ LABEL_TO_IS_ZERO = {
     1: False,
     2: True,
 }
+
 
 def get_serial_number_from_side(side):
     # type: (np.array) -> Optional[List[str]]
@@ -68,21 +70,17 @@ def _get_cleaned_up_text_subsection(im):
     if height > width:
         # Determine if red is left or right of text
         if text_center[0] < red_center[0]:
-            # Rotate counter clockwise 90
-            text_subsection = cv2.transpose(text_subsection)
-            text_subsection = cv2.flip(text_subsection, 0)
+            text_subsection = rotate_image_counter_clockwise(text_subsection)
         else:
             # Rotate clockwise 90
-            text_subsection = cv2.transpose(text_subsection)
-            text_subsection = cv2.flip(text_subsection, 1)
+            text_subsection = rotate_image_clockwise(text_subsection)
     else:
         if text_center[1] > red_center[1]:
             # We're fine
             pass
         else:
             # Rotate 180
-            text_subsection = cv2.flip(text_subsection, 0)
-            text_subsection = cv2.flip(text_subsection, 1)
+            text_subsection = rotate_image_180(text_subsection)
 
     # show(get_drawn_contours(im, [text_contour], True))
     # show(text_subsection)

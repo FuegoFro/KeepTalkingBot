@@ -6,7 +6,7 @@ from enum import Enum
 Type = Enum('Type', [
     'blank',  #
     'clock',  #
-    'button',  # TODO FRK and CAR indicators, clock. (batteries)
+    'button',  # TODO clock (FRK and CAR indicators, batteries)
     'complicated_wires',  #
     'maze',  #
     'memory',  #
@@ -18,11 +18,6 @@ Type = Enum('Type', [
     'whos_on_first',  #
     'wire_sequence',  #
 ])
-
-# -- Work to do to understand outside:
-# Understand indicator label and light (could just special case the two we care about)
-#   Lit indicator with CAR
-#   Lit indicator with FRK
 
 
 class ModuleSolver(object):

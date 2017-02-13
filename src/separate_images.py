@@ -17,6 +17,7 @@ SIMON_SAYS_DIR = DATA_DIR + "/labelled_photos/simon_says"
 RAW_ORIG_SCREENSHOTS = DATA_DIR + "/module_classifier/unlabelled"
 EDGE_BATTERY_SCREENSHOTS = DATA_DIR + "/sides/batteries"
 EDGE_SERIAL_SCREENSHOTS = DATA_DIR + "/sides/serial/raw_images"
+EDGE_INDICATORS_SCREENSHOTS = DATA_DIR + "/sides/indicators/raw_images"
 
 
 def classify_password_and_symbols():
@@ -85,7 +86,7 @@ def sort_sides():
         key = show(cv2.resize(im, (width / 4, height / 4)))
         if key == ord("y"):
             print "COPYING "
-            shutil.copy(path, os.path.join(EDGE_SERIAL_SCREENSHOTS, os.path.basename(path)))
+            shutil.copy(path, os.path.join(EDGE_INDICATORS_SCREENSHOTS, os.path.basename(path)))
 
 
 if __name__ == '__main__':
