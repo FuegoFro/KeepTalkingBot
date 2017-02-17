@@ -60,7 +60,7 @@ def get_screen_content(im, tesseract, debug_idx):
     # show(im_mono)
 
     contours, hierarchy = cv2.findContours(im_mono, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    contours = [cv2.approxPolyDP(c, 5, True) for c in contours]
+    contours = [cv2.approxPolyDP(c, 0.001 * cv2.contourArea(c), True) for c in contours]
     contours = sorted([c for c in contours if _is_valid_screen_contour(im, c)], key=cv2.contourArea)
     # show(get_drawn_contours(im, contours))
     contour = contours[-1]

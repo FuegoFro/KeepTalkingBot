@@ -5,7 +5,8 @@ from tesserocr import PSM, PyTessBaseAPI
 import cv2
 
 from constants import MODULE_CLASSIFIER_DIR, MODULE_SPECIFIC_DIR
-from cv_helpers import apply_offset_to_locations, get_classifier_directories, inflate_classifier, ls
+from cv_helpers import apply_offset_to_locations, get_classifier_directories, inflate_classifier, ls, \
+    ls_debug
 from modules import ModuleSolver, Type
 from modules.whos_on_first_cv import get_buttons_and_positions, get_screen_content
 from modules.whos_on_first_solution import button_to_press
@@ -25,14 +26,15 @@ def test():
         get_classifier_directories(MODULE_CLASSIFIER_DIR)
     i = 0
     # for path in ["/Users/danny/Dropbox (Personal)/Projects/KeepTalkingBot/module_specific_data/whos_on_first/in_game_6.png"]:
-    for path in ls(os.path.join(labelled_dir, "whos_on_first")):
+    # for path in ls(os.path.join(labelled_dir, "whos_on_first")):
+    for path in ls_debug(1486, 1486):
         i += 1
         # if i < 50:
         #     continue
-        if i >= 50:
-            break
-        name = "-module-".join(os.path.basename(path).split("-full-"))
-        path = os.path.join(unlabelled_dir, name)
+        # if i >= 50:
+        #     break
+        # name = "-module-".join(os.path.basename(path).split("-full-"))
+        # path = os.path.join(unlabelled_dir, name)
         im = cv2.imread(path)
         # show(im)
         screen_text = get_screen_content(im, tesseract, 9999)

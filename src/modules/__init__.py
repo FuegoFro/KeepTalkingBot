@@ -43,6 +43,7 @@ def create_solvers():
     from modules.simple_wires import SimpleWiresSolver
     from modules.simon_says import SimonSaysSolver
     from modules.complicated_wires import ComplicatedWiresSolver
+    from modules.button import ButtonSolver
 
     module_solver_classes = (
         MazeSolver,
@@ -55,6 +56,7 @@ def create_solvers():
         SimpleWiresSolver,
         SimonSaysSolver,
         ComplicatedWiresSolver,
+        ButtonSolver,
     )
 
     solvers = {}

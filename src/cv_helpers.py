@@ -5,6 +5,11 @@ import numpy as np
 
 from constants import DATA_DIR
 
+MYPY = False
+if MYPY:
+    from typing import Tuple, Union
+    Pair = Tuple[int, int]
+
 
 def scale(image, scale_percent):
     height, width = image.shape[:2]
@@ -183,8 +188,20 @@ def apply_offset_to_single_location(location, offset):
     return location[0] + x_offset, location[1] + y_offset
 
 
+def _apply_sensitivity_to_255(orig_100):
+    low = max(0, orig_100 - 10)
+    high = min(100, orig_100 + 10)
+    return int((255 * low) / 100.0), int((255 * high) / 100.0)
+
+
+def extract_color_2(im, hue_360, saturation_100, value_100):
+    saturation_255 = _apply_sensitivity_to_255(saturation_100)
+    value_255 = _apply_sensitivity_to_255(value_100)
+    return extract_color(im, hue_360/2, saturation_255, value_255)
+
+
 def extract_color(im, hue, saturation, value):
-    # type: (np.ndarray, Union[int, Tuple[int, int]], Tuple[int, int], Tuple[int, int]) -> np.ndarray
+    # type: (np.ndarray, Union[int, Pair], Pair, Pair) -> np.ndarray
     if isinstance(hue, int):
         sensitivity = 10
         hue = (hue - sensitivity, hue + sensitivity)
@@ -302,7 +319,12 @@ def get_height(im):
     return get_dimens(im)[1]
 
 
-def ls_debug(start_num, end_num):
+def ls_debug(start_num=None, end_num=None, explicit_options=None):
+    assert (start_num is None) == (end_num is None) and \
+           (start_num is None) != (explicit_options is None), \
+        "Should specify either start and end or explicit"
+    if start_num is not None:
+        explicit_options = range(start_num, end_num + 1)
     for path in ls(DATA_DIR + "module_specific_data/debug/"):
         name, _ = os.path.splitext(os.path.basename(path))
         try:
@@ -310,7 +332,7 @@ def ls_debug(start_num, end_num):
         except ValueError:
             continue
 
-        if start_num <= num <= end_num:
+        if num in explicit_options:
             yield path
 
 
@@ -339,3 +361,7 @@ def rotate_image_counter_clockwise(image):
     image = cv2.transpose(image)
     image = cv2.flip(image, 0)
     return image
+
+
+def extract_threshold(im, threshold):
+    return cv2.threshold(im, threshold, 255, 0)[1]
