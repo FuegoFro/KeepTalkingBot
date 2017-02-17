@@ -19,12 +19,20 @@ class MorseCodeSolver(ModuleSolver):
         right_arrow_location = arrow_locations[1]
         tx_button_location = apply_offset_to_single_location(find_tx_button(image), offset)
 
-        last_seen_light_state = is_light_on(
-            screenshot_helper.get_current_module_screenshot(allow_bad_lighting=True, suppress_debug_copy=True)[0])
+        def get_light_state():
+            # We're very timing dependent, so we turn off the mouse movement (which introduces a
+            # .2 second delay for each screenshot) and the bad light detection (which would
+            # totally screw us up and isn't relevant because the morse code light looks the same
+            # regardless of if the lights are on). We also supress the debug copy because we take
+            # these so frequently, there end up being way too many (and saving the copy takes a
+            # bit of time).
+            return is_light_on(screenshot_helper.get_current_module_screenshot(
+                allow_bad_lighting=True, suppress_debug_copy=True, suppress_mouse_movement=True)[0])
+
+        last_seen_light_state = get_light_state()
         last_seen_start_time = None
         while not state.is_word_known():
-            current_light_state = is_light_on(
-                screenshot_helper.get_current_module_screenshot(allow_bad_lighting=True, suppress_debug_copy=True)[0])
+            current_light_state = get_light_state()
             if current_light_state == last_seen_light_state:
                 # Not sleeping because it takes long enough to grab and process a screenshot.
                 # Busy waiting FTW!

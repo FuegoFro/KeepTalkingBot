@@ -114,7 +114,7 @@ class MorseCodeState(object):
             if self.current_partial_letter is not None:
                 letter = _signals_to_letter(self.current_partial_letter)
                 print "ADDING LETTER:", letter
-                self.letters[self.next_letter_index] = letter
+                self.letters[self._get_next_letter_index()] = letter
                 # Assume we'll never wrap around, since we should know what the word is by then.
                 self.next_letter_index += 1
             self.current_partial_letter = []
@@ -122,7 +122,10 @@ class MorseCodeState(object):
             if pause_type == _Pauses.WORD:
                 # It's possible this is the last thing we see, in which case we'll need to make sure it's within
                 # the range of the array.
-                self.word_start_index = self.next_letter_index % 5
+                self.word_start_index = self._get_next_letter_index()
+
+    def _get_next_letter_index(self):
+        return self.next_letter_index % len(self.letters)
 
     def _get_word_if_possible(self):
         # This function tries to find the word given a subset of the total possible information
@@ -144,18 +147,18 @@ class MorseCodeState(object):
 
         if self.word_start_index is None:
             # No start index, so we have to look inside every word
-            partial_word = "".join(self.letters[:self.next_letter_index])
+            partial_word = "".join(self.letters[:self._get_next_letter_index()])
             return find_single_matching_word(lambda word: partial_word in word)
         else:
             # We have a start index, can check beginnings and ends of words
             end = "".join(self.letters[:self.word_start_index])
-            start = "".join(self.letters[self.word_start_index:self.next_letter_index])
+            start = "".join(self.letters[self.word_start_index:self._get_next_letter_index()])
             return find_single_matching_word(lambda word: word.startswith(start) and word.endswith(end))
 
     def is_word_known(self):
         word = self._get_word_if_possible()
-        if word is None and self.next_letter_index >= len(self.letters):
-            assert False, "Can't find word, but have all letters: {}".format(self.letters)
+        if word is None and self.next_letter_index >= 2 * len(self.letters):
+            assert False, "Can't find word, but got all letters twice: {}".format(self.letters)
         return word is not None
 
     def get_num_time_to_press_right_arrow(self):
