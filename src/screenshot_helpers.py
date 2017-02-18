@@ -10,12 +10,12 @@ from modules import Type
 from mouse_helpers import mouse_percent, MouseEvent, pre_drag_delay, open_bomb, close_once
 
 FULL_POSITIONS = (
-    (27, 43, 26, 51),  # top-left
-    (43, 59, 26, 51),  # top-middle
-    (59, 76, 26, 51),  # top-right
-    (26, 43, 51, 77),  # bottom-left
-    (43, 59, 51, 77),  # bottom-middle
-    (59, 76, 51, 77),  # bottom-right
+    ((27, 43, 26, 51), (0, 0)),  # top-left
+    ((43, 59, 26, 51), (1, 0)),  # top-middle
+    ((59, 76, 26, 51), (2, 0)),  # top-right
+    ((26, 43, 51, 77), (0, 1)),  # bottom-left
+    ((43, 59, 51, 77), (1, 1)),  # bottom-middle
+    ((59, 76, 51, 77), (2, 1)),  # bottom-right
 )
 
 MODULE_RECT = (42, 60, 35, 64)
@@ -40,19 +40,19 @@ DEBUG_SCREENSHOT_PATH_TEMPLATE = os.path.join(MODULE_SPECIFIC_DIR, "debug", "{:0
 
 
 class ScreenshotHelper(object):
-    def __init__(self):
+    def __init__(self, module_classifier):
         super(ScreenshotHelper, self).__init__()
-        open_bomb()
+        self._module_classifier = module_classifier
+
+    def initialize_while_open(self):
         self._initialize_lighting_reference()
         self._initialize_debug_screenshot()
-        close_once()
 
-    @staticmethod
-    def _classify_module(classifier, module_image):
-        output = classifier(module_image)
+    def classify_module(self, module_image):
+        output = self._module_classifier(module_image)
         return CLASSIFIER_OUTPUT_TO_TYPE[output]
 
-    def determine_visible_modules(self, classifier):
+    def determine_visible_modules(self):
         """
         Returns a list of (module_type, module_location) pairs where the
         location is a pair of x, y percentage coordinates
@@ -60,7 +60,7 @@ class ScreenshotHelper(object):
         mat = self._get_screenshot_matrix_and_time_bounds()[0]
 
         modules = []
-        for x1, x2, y1, y2 in FULL_POSITIONS:
+        for (x1, x2, y1, y2), position in FULL_POSITIONS:
             height = mat.shape[0]
             width = mat.shape[1]
             x1 = x1 * width / 100
@@ -68,15 +68,15 @@ class ScreenshotHelper(object):
             y1 = y1 * height / 100
             y2 = y2 * height / 100
             sub_screenshot = mat[y1:y2, x1:x2]
-            module_type = self._classify_module(classifier, sub_screenshot)
-            modules.append((module_type, ((x1 + x2) / 2, (y1 + y2) / 2)))
+            module_type = self.classify_module(sub_screenshot)
+            modules.append((module_type, ((x1 + x2) / 2, (y1 + y2) / 2), position))
 
         return modules
 
-    def get_current_module_screenshot(self,
-                                      allow_bad_lighting=False,
-                                      suppress_debug_copy=False,
-                                      suppress_mouse_movement=False):
+    def get_current_module_screenshot_and_position(self,
+                                                   allow_bad_lighting=False,
+                                                   suppress_debug_copy=False,
+                                                   suppress_mouse_movement=False):
         """
         Returns a pair (image, offset) where the image is a subset of the
         screen containing just the module and the offset is the x, y pixel

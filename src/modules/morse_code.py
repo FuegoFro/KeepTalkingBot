@@ -13,7 +13,7 @@ class MorseCodeSolver(ModuleSolver):
     def get_type(self):
         return Type.morse_code
 
-    def solve(self, image, offset, sides_info, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper, current_module_position):
         state = MorseCodeState()
         arrow_locations = apply_offset_to_locations(find_arrows(image), offset)
         right_arrow_location = arrow_locations[1]
@@ -26,7 +26,7 @@ class MorseCodeSolver(ModuleSolver):
             # regardless of if the lights are on). We also supress the debug copy because we take
             # these so frequently, there end up being way too many (and saving the copy takes a
             # bit of time).
-            return is_light_on(screenshot_helper.get_current_module_screenshot(
+            return is_light_on(screenshot_helper.get_current_module_screenshot_and_position(
                 allow_bad_lighting=True, suppress_debug_copy=True, suppress_mouse_movement=True)[0])
 
         last_seen_light_state = get_light_state()

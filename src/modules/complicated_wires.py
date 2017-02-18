@@ -12,7 +12,7 @@ class ComplicatedWiresSolver(ModuleSolver):
     def get_type(self):
         return Type.complicated_wires
 
-    def solve(self, image, offset, sides_info, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper, current_module_position):
         for led, wire, star in get_complicated_wire_info_for_module(image):
             if wire is None:
                 continue

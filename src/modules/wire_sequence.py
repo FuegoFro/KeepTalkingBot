@@ -13,14 +13,14 @@ class WireSequenceSolver(ModuleSolver):
     def get_type(self):
         return Type.wire_sequence
 
-    def solve(self, image, offset, sides_info, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper, current_module_position):
         state = WireSequenceState()
         down_button_x, down_button_y = apply_offset_to_single_location(get_down_button(image), offset)
         for i in xrange(NUM_PANELS):
             if i != 0:
                 # Wait for next panel to show up
                 time.sleep(1.5)
-            im, offset = screenshot_helper.get_current_module_screenshot()
+            im, offset = screenshot_helper.get_current_module_screenshot_and_position()
             connections = get_connections(im)
             for color, destination, to_click in connections:
                 if state.should_cut_next_wire(color, destination):

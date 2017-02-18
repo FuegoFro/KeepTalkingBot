@@ -43,7 +43,7 @@ class PasswordSolver(ModuleSolver):
     def get_type(self):
         return Type.password
 
-    def solve(self, image, offset, sides_info, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper, current_module_position):
         top_buttons, bottom_buttons = find_column_buttons(image)
         top_buttons = apply_offset_to_locations(top_buttons, offset)
         bottom_buttons = apply_offset_to_locations(bottom_buttons, offset)
@@ -54,7 +54,7 @@ class PasswordSolver(ModuleSolver):
             for button_x, button_y in bottom_buttons:
                 click_pixels(MouseButton.left, button_x, button_y)
                 post_click_delay()
-            image, offset = screenshot_helper.get_current_module_screenshot()
+            image, offset = screenshot_helper.get_current_module_screenshot_and_position()
             letter_rows.append(get_letters(image, self._letter_classifier))
 
         button_rows = {

@@ -39,16 +39,40 @@ def _get_release_digit_for_strip_color(strip_color):
         return 1
 
 
+def _decrement_clock(clock_digits, seconds_to_decrement):
+    num_minutes = int(''.join(map(str, clock_digits[:-2])))
+    num_seconds = int(''.join(map(str, clock_digits[-2:])))
+
+    total_seconds = num_minutes * 60 + num_seconds
+
+    total_seconds -= seconds_to_decrement
+
+    num_seconds = total_seconds % 60
+    num_minutes = (total_seconds - num_seconds) / 60
+    return map(int, list(str(num_minutes))) + map(int, list(str(num_seconds)))
+
+
 def get_release_delay_from_clock_time_for_color(clock_minutes, clock_seconds, strip_color):
     digit = _get_release_digit_for_strip_color(strip_color)
+    # print "Need to release with a {} in any position. Current time is {}:{}" \
+    #       "".format(digit, "".join(map(str, clock_minutes)), "".join(map(str, clock_seconds)))
     assert digit != 0, "We don't handle 0 minutes properly"
 
-    minutes_digit, = map(int, str(clock_minutes))
-    seconds_10s, seconds_1s, = map(int, str(clock_seconds))
+    # It takes a while to process the screenshot, assume some time has passed.
+    adjusted_clock_digits = _decrement_clock(clock_minutes + clock_seconds, 2)
+    assert len(adjusted_clock_digits) < 4, "Can't handle more than 10 minutes remaining"
 
-    final_digits = [minutes_digit, seconds_10s, seconds_1s]
+    delay = _get_delay_for_digit_from_clock_digits(adjusted_clock_digits, digit)
+    # Re-adjust for the 2 seconds we removed earlier
+    delay += 2
+    return delay
 
-    if digit in final_digits:
+
+def _get_delay_for_digit_from_clock_digits(clock_digits, digit):
+    minutes_digit = clock_digits[0]
+    seconds_10s, seconds_1s = clock_digits[-2:]
+
+    if digit in clock_digits:
         # The digit is already on the clock
         return 0
 

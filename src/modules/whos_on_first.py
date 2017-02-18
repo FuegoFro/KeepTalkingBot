@@ -67,7 +67,7 @@ class WhosOnFirstSolver(ModuleSolver):
     def get_type(self):
         return Type.whos_on_first
 
-    def solve(self, image, offset, sides_info, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper, current_module_position):
         first_time = True
         for _ in range(NUM_TIMES_TO_SOLVE):
             if not first_time:
@@ -75,7 +75,7 @@ class WhosOnFirstSolver(ModuleSolver):
                 time.sleep(4)
             first_time = False
 
-            image, offset = screenshot_helper.get_current_module_screenshot()
+            image, offset = screenshot_helper.get_current_module_screenshot_and_position()
 
             print "\n----- In game try %s -----" % self._debug_image
             cv2.imwrite(os.path.join(MODULE_SPECIFIC_DIR, "whos_on_first", "in_game_%i.png" % self._debug_image), image)

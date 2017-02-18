@@ -16,7 +16,7 @@ class MemorySolver(ModuleSolver):
     def get_type(self):
         return Type.memory
 
-    def solve(self, image, offset, sides_info, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper, current_module_position):
         state = MemoryState()
         first_time = True
         while not state.is_done():
@@ -24,7 +24,7 @@ class MemorySolver(ModuleSolver):
                 time.sleep(4)
             first_time = False
 
-            image, offset = screenshot_helper.get_current_module_screenshot()
+            image, offset = screenshot_helper.get_current_module_screenshot_and_position()
             screen = get_screen(image, self.screen_classifier)
             buttons, button_locations = get_buttons_and_locations(image, self.button_classifier)
 

@@ -15,10 +15,10 @@ class SimonSaysSolver(ModuleSolver):
     def get_type(self):
         return Type.simon_says
 
-    def solve(self, image, offset, sides_info, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper, current_module_position):
 
         def screenshot():
-            return screenshot_helper.get_current_module_screenshot(
+            return screenshot_helper.get_current_module_screenshot_and_position(
                 allow_bad_lighting=True, suppress_debug_copy=True)[0]
 
         state = SimonSaysState(sides_info)

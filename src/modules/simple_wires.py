@@ -15,7 +15,7 @@ class SimpleWiresSolver(ModuleSolver):
     def get_type(self):
         return Type.simple_wires
 
-    def solve(self, image, offset, sides_info, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper, current_module_position):
         positions, colors = get_wire_positions_and_colors(image)
         index_to_cut = get_wire_index_to_cut(colors, sides_info)
 

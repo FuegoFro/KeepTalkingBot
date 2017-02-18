@@ -15,7 +15,7 @@ class SymbolsSolver(ModuleSolver):
     def get_type(self):
         return Type.symbols
 
-    def solve(self, image, offset, sides_info, screenshot_helper):
+    def solve(self, image, offset, sides_info, screenshot_helper, current_module_position):
         symbols, positions = get_symbols_and_positions(image, self._symbol_classifier)
         positions = apply_offset_to_locations(positions, offset)
         order = get_symbol_order(symbols)

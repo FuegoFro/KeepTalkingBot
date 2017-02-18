@@ -336,13 +336,27 @@ def ls_debug(start_num=None, end_num=None, explicit_options=None):
             yield path
 
 
-def get_subset(im, x_percents, y_percents):
+def get_subset(im, x_percents, y_percents, margin_percent=0):
     w, h = get_dimens(im)
-    left_margin, right_margin, top_margin, bottom_margin = [
+    left, right, top, bottom = [
         int((percent * full)/100.0) for percent, full in zip(x_percents + y_percents, (w, w, h, h))
     ]
 
-    return im[top_margin:bottom_margin, left_margin:right_margin]
+    if margin_percent != 0:
+        half_w = (right - left) / 2.0
+        half_h = (bottom - top) / 2.0
+        pos_dist_to_center_pairs = (
+            (left, half_w),
+            (right, -half_w),
+            (top, half_h),
+            (bottom, -half_h),
+        )
+        left, right, top, bottom = [
+            int(pos + dist_to_center - (dist_to_center * (100 + margin_percent) / 100.0))
+            for pos, dist_to_center in pos_dist_to_center_pairs
+        ]
+
+    return im[top:bottom, left:right]
 
 
 def rotate_image_180(image):

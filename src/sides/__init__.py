@@ -21,8 +21,8 @@ class SidesInfo(object):
         self.indicators = indicators
 
 
-def get_sides_info(screenshot_helper):
-    non_bottom_sides, bottom_side = _get_sides_screenshots(screenshot_helper)
+def get_sides_info_while_open(screenshot_helper):
+    non_bottom_sides, bottom_side = _get_sides_screenshots_while_open(screenshot_helper)
     sides = [_extract_side(side, False) for side in non_bottom_sides]
     sides.append(_extract_side(bottom_side, True))
 
@@ -38,14 +38,11 @@ def get_sides_info(screenshot_helper):
 
     flat_map = itertools.chain.from_iterable
     indicators = list(flat_map(get_indicator_lights_and_text(s) for s in sides))
-    print indicators
 
     return SidesInfo(num_batteries, serial_number, has_parallel_port, indicators)
 
 
-def _get_sides_screenshots(screenshot_helper):
-    open_bomb()
-
+def _get_sides_screenshots_while_open(screenshot_helper):
     mouse_percent(MouseEvent.right_mouse_down, 5, 5)
     pre_drag_delay()
     mouse_percent(MouseEvent.right_mouse_dragged, 20, 5)
@@ -77,8 +74,6 @@ def _get_sides_screenshots(screenshot_helper):
     post_drag_delay()
     mouse_percent(MouseEvent.right_mouse_up, 95, 95)
     pre_drag_delay()
-
-    close_once()
 
     return (left, top, right), bottom
 
